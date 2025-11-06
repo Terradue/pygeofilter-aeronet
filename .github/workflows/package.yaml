@@ -9,6 +9,7 @@ on:
     paths:
     - src/**
     - .github/workflows/package.yaml
+    - README.md
   release:
     types:
     - published
