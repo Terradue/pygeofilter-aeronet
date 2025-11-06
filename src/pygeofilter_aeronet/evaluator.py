@@ -1,3 +1,4 @@
+import csv
 import os
 import json
 import numbers
@@ -26,13 +27,12 @@ def read_aeronet_site_list(filepath: str) -> Sequence[str]:
     """
 
     site_list = []
-    with open(filepath, "r") as file:
-        lines = file.readlines()[2:]  # Skip the first two header lines
-        for line in lines:
-            parts = line.strip().split(",")
-            if len(parts) >= 4:
-                site_name = parts[0]
-                site_list.append(site_name)
+    with open(filepath) as file:
+        next(file)
+
+        csv_reader = csv.DictReader(file)
+        for line in csv_reader:
+            site_list.append(line['Site_Name'])
 
     return site_list
 
