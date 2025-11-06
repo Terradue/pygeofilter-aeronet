@@ -7,7 +7,6 @@ on:
     - develop
     - main
     paths:
-    - transpiler-mate/**
     - src/**
     - .github/workflows/package.yaml
   release:
