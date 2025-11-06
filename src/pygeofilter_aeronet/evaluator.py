@@ -8,7 +8,7 @@ from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from typing import Dict, Optional, Sequence
+from typing import Dict, Mapping, Optional, Sequence
 
 
 def read_aeronet_site_list(filepath: str) -> Sequence[str]:
@@ -70,7 +70,7 @@ SUPPORTED_VALUES = {
 
 
 class AeronetEvaluator(Evaluator):
-    def __init__(self, attribute_map: Dict[str, str], function_map: Dict[str, str]):
+    def __init__(self, attribute_map: Mapping[str, str], function_map: Mapping[str, str]):
         self.attribute_map = attribute_map
         self.function_map = function_map
 
@@ -139,9 +139,9 @@ class AeronetEvaluator(Evaluator):
 
 
 def to_aeronet_api_querystring(
-    root: ast.Node,
-    field_mapping: Dict[str, str],
-    function_map: Optional[Dict[str, str]] = None,
+    root: ast.AstType,
+    field_mapping: Mapping[str, str],
+    function_map: Optional[Mapping[str, str]] = None,
 ) -> str:
     return AeronetEvaluator(field_mapping, function_map or {}).evaluate(root)
 
