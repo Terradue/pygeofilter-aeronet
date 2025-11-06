@@ -1,0 +1,29 @@
+version: '3'
+
+tasks:
+  base_ruff:
+    cmds:
+      - pip install ruff pre-commit
+      - ruff --version
+
+  ruff_check:
+    cmds:
+      - pip install ruff pre-commit
+      #ruff check --fix-only
+      - ruff check --output-format=gitlab > code-quality-report.json
+
+  ruff_format:
+    cmds:
+      - pip install ruff pre-commit
+      - ruff format --diff
+
+  package:
+    cmds:
+      - pip install hatch
+      - hatch build
+      - hatch -e default run nose2 tests
+
+  serve-docs:
+    cmds:
+      - pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter
+      - mkdocs serve
