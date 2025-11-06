@@ -1,3 +1,18 @@
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import csv
 import os
 import json
 import numbers
@@ -8,10 +23,10 @@ from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from typing import Dict, Optional
+from typing import Mapping, Optional, Sequence
 
 
-def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
+def read_aeronet_site_list(filepath: str) -> Sequence[str]:
     """
     Example of AERONET site list file content:
 
@@ -26,13 +41,12 @@ def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
     """
 
     site_list = []
-    with open(filepath, "r") as file:
-        lines = file.readlines()[2:]  # Skip the first two header lines
-        for line in lines:
-            parts = line.strip().split(",")
-            if len(parts) >= 4:
-                site_name = parts[0]
-                site_list.append(site_name)
+    with open(filepath) as file:
+        next(file)
+
+        csv_reader = csv.DictReader(file)
+        for line in csv_reader:
+            site_list.append(line['Site_Name'])
 
     return site_list
 
@@ -70,7 +84,7 @@ SUPPORTED_VALUES = {
 
 
 class AeronetEvaluator(Evaluator):
-    def __init__(self, attribute_map: Dict[str, str], function_map: Dict[str, str]):
+    def __init__(self, attribute_map: Mapping[str, str], function_map: Mapping[str, str]):
         self.attribute_map = attribute_map
         self.function_map = function_map
 
@@ -139,27 +153,27 @@ class AeronetEvaluator(Evaluator):
 
 
 def to_aeronet_api_querystring(
-    root: ast.Node,
-    field_mapping: Dict[str, str],
-    function_map: Optional[Dict[str, str]] = None,
+    root: ast.AstType,
+    field_mapping: Mapping[str, str],
+    function_map: Optional[Mapping[str, str]] = None,
 ) -> str:
     return AeronetEvaluator(field_mapping, function_map or {}).evaluate(root)
 
 
-def to_aeronet_api(cql2_filter) -> str:
+def to_aeronet_api(cql2_filter: str | dict) -> str:
     return to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict())
 
 
 def http_invoke(
-    cql2_filter: Dict,
+    cql2_filter: str | dict,
     base_url: str = AERONET_API_BASE_URL,
     dry_run: bool = False,
-) -> Dict:
+) -> str:
     current_filter = to_aeronet_api(cql2_filter)
     url = f"{base_url}?{current_filter}"
     if dry_run:
         print(url)
-        return {}
+        return ''
 
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for HTTP error codes
