@@ -146,12 +146,12 @@ def to_aeronet_api_querystring(
     return AeronetEvaluator(field_mapping, function_map or {}).evaluate(root)
 
 
-def to_aeronet_api(cql2_filter) -> str:
+def to_aeronet_api(cql2_filter: str | dict) -> str:
     return to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict())
 
 
 def http_invoke(
-    cql2_filter: Dict,
+    cql2_filter: str | dict,
     base_url: str = AERONET_API_BASE_URL,
     dry_run: bool = False,
 ) -> str:
