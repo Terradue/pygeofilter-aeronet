@@ -44,7 +44,7 @@ AERONET_DATA_TYPES = [
     'TOT10', 'TOT15', 'TOT20',
 ]
 
-TRUE_VALUE_LIST = [*AERONET_DATA_TYPES, "if_no_html"] # values that need <parameter>=1
+TRUE_VALUE_LIST = [*AERONET_DATA_TYPES, "if_no_html", "lunar_merge"] # values that need <parameter>=1
 
 AERONET_SITE_LIST = read_aeronet_site_list(os.path.join(os.path.dirname(__file__), "data", "aeronet_locations_v3.txt"))
 
