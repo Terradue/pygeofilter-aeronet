@@ -10,8 +10,8 @@ from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
 from typing import Dict, Optional
 
-def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
 
+def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
     """
     Example of AERONET site list file content:
 
@@ -25,7 +25,6 @@ def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
     Kolfield,-74.476387,39.802223,50.000000
     """
 
-
     site_list = []
     with open(filepath, "r") as file:
         lines = file.readlines()[2:]  # Skip the first two header lines
@@ -37,16 +36,30 @@ def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
 
     return site_list
 
+
 AERONET_API_BASE_URL = "https://aeronet.gsfc.nasa.gov/cgi-bin/print_web_data_v3"
 
 AERONET_DATA_TYPES = [
-    'AOD10', 'AOD15', 'AOD20', 'SDA10', 'SDA15', 'SDA20',
-    'TOT10', 'TOT15', 'TOT20',
+    "AOD10",
+    "AOD15",
+    "AOD20",
+    "SDA10",
+    "SDA15",
+    "SDA20",
+    "TOT10",
+    "TOT15",
+    "TOT20",
 ]
 
-TRUE_VALUE_LIST = [*AERONET_DATA_TYPES, "if_no_html", "lunar_merge"] # values that need <parameter>=1
+TRUE_VALUE_LIST = [
+    *AERONET_DATA_TYPES,
+    "if_no_html",
+    "lunar_merge",
+]  # values that need <parameter>=1
 
-AERONET_SITE_LIST = read_aeronet_site_list(os.path.join(os.path.dirname(__file__), "data", "aeronet_locations_v3.txt"))
+AERONET_SITE_LIST = read_aeronet_site_list(
+    os.path.join(os.path.dirname(__file__), "data", "aeronet_locations_v3.txt")
+)
 
 SUPPORTED_VALUES = {
     "format": ["csv", "html"],
@@ -82,9 +95,9 @@ class AeronetEvaluator(Evaluator):
         supported_values = SUPPORTED_VALUES.get(lhs)
 
         if supported_values is not None:
-            assert rhs in supported_values, (
-                f"'{rhs}' is not supported value for '{lhs}', expected one of {supported_values}"
-            )
+            assert (
+                rhs in supported_values
+            ), f"'{rhs}' is not supported value for '{lhs}', expected one of {supported_values}"
 
         is_value_supported = rhs in TRUE_VALUE_LIST
 
@@ -97,7 +110,7 @@ class AeronetEvaluator(Evaluator):
         if is_value_supported:
             return f"{rhs}=1"
         return f"{lhs}={rhs}"
-    
+
     @handle(ast.And)
     def combination(self, node, lhs, rhs):
         return f"{lhs}&{rhs}"

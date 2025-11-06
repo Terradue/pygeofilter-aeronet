@@ -63,7 +63,6 @@ class TestQueryAttributes(unittest.TestCase):
 
         self.assertEqual(expected, to_aeronet_api(cql2_filter))
 
-
     def test_format_html(self):
         cql2_filter = {
             "op": "and",
@@ -94,12 +93,11 @@ class TestQueryAttributes(unittest.TestCase):
             ],
         }
 
-        expected = (
-            "lon1=10.0&lat1=45.0&lon2=12.0&lat2=47.0"
-        )
+        expected = "lon1=10.0&lat1=45.0&lon2=12.0&lat2=47.0"
 
         self.assertEqual(
-            expected, to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict())
+            expected,
+            to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict()),
         )
 
     def test_date_interval(self):
@@ -127,7 +125,8 @@ class TestQueryAttributes(unittest.TestCase):
         expected = "year=2023&month=1&day=1&hour=0&minute=0&year2=2023&month2=1&day2=31&hour2=23&minute2=59"
 
         self.assertEqual(
-            expected, to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict())
+            expected,
+            to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict()),
         )
 
     def test_real_case(self):
@@ -157,5 +156,3 @@ class TestQueryAttributes(unittest.TestCase):
         expected = "site=Cart_Site&AOD10=1&if_no_html=1&year=2023&month=2&day=1&hour=0&minute=0&year2=2023&month2=2&day2=28&hour2=23&minute2=59"
 
         self.assertEqual(expected, to_aeronet_api(cql2_filter))
-
-    
