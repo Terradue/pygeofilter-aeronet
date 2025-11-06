@@ -154,12 +154,12 @@ def http_invoke(
     cql2_filter: Dict,
     base_url: str = AERONET_API_BASE_URL,
     dry_run: bool = False,
-) -> Dict:
+) -> str:
     current_filter = to_aeronet_api(cql2_filter)
     url = f"{base_url}?{current_filter}"
     if dry_run:
         print(url)
-        return {}
+        return ''
 
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for HTTP error codes
