@@ -8,10 +8,10 @@ from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 
 
-def read_aeronet_site_list(filepath: str) -> Dict[str, str]:
+def read_aeronet_site_list(filepath: str) -> Sequence[str]:
     """
     Example of AERONET site list file content:
 
