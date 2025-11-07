@@ -45,7 +45,7 @@ def read_aeronet_site_list(filepath: str) -> Sequence[str]:
     with open(filepath) as file:
         data_frame: DataFrame = read_csv(file, skiprows=1)
         for _, row in data_frame.iterrows():
-            site_list.append(row['Site_Name'])
+            site_list.append(row["Site_Name"])
 
     return site_list
 
@@ -83,7 +83,9 @@ SUPPORTED_VALUES = {
 
 
 class AeronetEvaluator(Evaluator):
-    def __init__(self, attribute_map: Mapping[str, str], function_map: Mapping[str, str]):
+    def __init__(
+        self, attribute_map: Mapping[str, str], function_map: Mapping[str, str]
+    ):
         self.attribute_map = attribute_map
         self.function_map = function_map
 
@@ -164,8 +166,7 @@ def to_aeronet_api(cql2_filter: str | dict) -> str:
 
 
 def http_invoke(
-    cql2_filter: str | dict,
-    base_url: str = AERONET_API_BASE_URL
+    cql2_filter: str | dict, base_url: str = AERONET_API_BASE_URL
 ) -> DataFrame:
     current_filter = to_aeronet_api(cql2_filter)
     url = f"{base_url}?{current_filter}"

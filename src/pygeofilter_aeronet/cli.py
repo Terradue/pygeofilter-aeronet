@@ -12,16 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .evaluator import (
-    AERONET_API_BASE_URL,
-    http_invoke,
-    to_aeronet_api
-)
+from .evaluator import AERONET_API_BASE_URL, http_invoke, to_aeronet_api
 from .utils import to_geoparquet
-from enum import (
-    auto,
-    Enum
-)
+from enum import auto, Enum
 from loguru import logger
 from pathlib import Path
 from pandas import DataFrame
@@ -29,75 +22,73 @@ from pandas import DataFrame
 import click
 import json
 
+
 class FilterLang(Enum):
+
+    def _generate_next_value_(name, start, count, last_values):
+        return name.lower().replace("_", "-")
+
     CQL2_JSON = auto()
     CQL2_TEXT = auto()
+
 
 class OutputFormat(Enum):
     GEOPARQUET = auto()
     CSV = auto()
 
+
 @click.group()
 def main():
     pass
 
-@main.command(context_settings={'show_default': True})
+
+@main.command(context_settings={"show_default": True})
 @click.argument(
-    'url',
+    "url",
     type=click.STRING,
     required=True,
-    envvar='AERONET_API_BASE_URL',
-    default=AERONET_API_BASE_URL
+    envvar="AERONET_API_BASE_URL",
+    default=AERONET_API_BASE_URL,
 )
 @click.option(
-    '--filter',
+    "--filter",
     type=click.STRING,
     required=True,
-    help="Filter on queryables using language specified in filter-lang parameter"
+    help="Filter on queryables using language specified in filter-lang parameter",
 )
 @click.option(
-    '--filter-lang',
-    type=click.Choice(
-        FilterLang,
-        case_sensitive=False
-    ),
+    "--filter-lang",
+    type=click.Choice([f.value for f in FilterLang], case_sensitive=False),
     required=False,
-    default=FilterLang.CQL2_JSON.name.lower(),
-    help="Filter language used within the filter parameter"
+    default=FilterLang.CQL2_JSON.value,
+    help="Filter language used within the filter parameter",
 )
 @click.option(
-    '--dry-run',
+    "--dry-run",
     type=click.BOOL,
     is_flag=True,
     default=False,
-    help="Just print the invoking URL with the built filter and exits"
+    help="Just print the invoking URL with the built filter and exits",
 )
 @click.option(
     "--format",
-    type=click.Choice(
-        OutputFormat,
-        case_sensitive=False
-    ),
+    type=click.Choice(OutputFormat, case_sensitive=False),
     default=OutputFormat.GEOPARQUET.name.lower(),
-    help="Output format"
+    help="Output format",
 )
 @click.option(
     "--output-file",
-    type=click.Path(
-        writable=True,
-        dir_okay=False,
-        path_type=Path
-    ),
+    type=click.Path(writable=True, dir_okay=False, path_type=Path),
     required=True,
-    help="Output file path"
+    help="Output file path",
 )
 def search(
     url: str,
     filter: str,
     filter_lang: FilterLang,
     dry_run: bool,
-    format: str, 
-    output_file: Path
+    format: str,
+    output_file: Path,
 ):
     cql2_filter: str | dict = filter
 
