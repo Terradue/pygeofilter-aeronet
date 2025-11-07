@@ -42,6 +42,9 @@ Documentation = "https://github.com/Terradue/pygeofilter-aeronet#readme"
 Issues = "https://github.com/Terradue/pygeofilter-aeronet/issues"
 Source = "https://github.com/Terradue/pygeofilter-aeronet"
 
+[tool.hatch.envs.prod]
+path = "/app/envs/aeronet-client"
+
 [project.scripts]
 aeronet-client = "pygeofilter_aeronet.cli:main"
 
