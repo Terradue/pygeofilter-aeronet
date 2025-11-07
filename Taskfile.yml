@@ -41,3 +41,7 @@ tasks:
     cmds:
       - pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter
       - mkdocs serve
+
+  run-clt: 
+    cmds:
+      - cwltool cwl-clt/aeronet-client.cwl docs/cwl/inputs.yaml 
