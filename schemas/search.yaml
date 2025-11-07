@@ -41,5 +41,4 @@
     - 'null'
     - OutputFormat
     name: output-format
-  - type: File
-    name: output-file
+
