@@ -36,7 +36,8 @@ jobs:
       - name: Set up Python 3.x
         uses: actions/setup-python@v5
         with:
-          python-version: 3.x
-      - run: pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter legacy-cgi pdocs
+          python-version: 3.12
+      - run: pip install mkdocs-material mkdocs-mermaid2-plugin jupytext ipykernel bash_kernel mkdocs-jupyter legacy-cgi pdocs
       - run: pip install .
+      # - run: pdocs as_markdown --output_dir ./docs/api/latest --exclude_source --overwrite pygeofilter_aeronet
       - run: mkdocs gh-deploy --force

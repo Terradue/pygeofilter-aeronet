@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = ''
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = "Apache-2.0"
 keywords = []
 authors = [
   { name = "Fabrice Brito", email = "fabrice.brito@terradue.com" },
@@ -31,7 +31,9 @@ dependencies = [
   "nose2",
   "loguru",
   "requests",
-  "pandas",
+  "click>=8.3.0",
+  "geopandas",
+  "pyarrow",
 ]
 
 
@@ -39,6 +41,12 @@ dependencies = [
 Documentation = "https://github.com/Terradue/pygeofilter-aeronet#readme"
 Issues = "https://github.com/Terradue/pygeofilter-aeronet/issues"
 Source = "https://github.com/Terradue/pygeofilter-aeronet"
+
+[tool.hatch.envs.prod]
+path = "/app/envs/aeronet-client"
+
+[project.scripts]
+aeronet-client = "pygeofilter_aeronet.cli:main"
 
 [tool.hatch.version]
 path = "src/pygeofilter_aeronet/__about__.py"

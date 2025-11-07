@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import csv
 import os
 import json
 import numbers
 import requests
 import shapely
 from datetime import date, datetime
+from io import StringIO
+from pandas import DataFrame, read_csv
 from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
@@ -42,11 +43,9 @@ def read_aeronet_site_list(filepath: str) -> Sequence[str]:
 
     site_list = []
     with open(filepath) as file:
-        next(file)
-
-        csv_reader = csv.DictReader(file)
-        for line in csv_reader:
-            site_list.append(line['Site_Name'])
+        data_frame: DataFrame = read_csv(file, skiprows=1)
+        for _, row in data_frame.iterrows():
+            site_list.append(row['Site_Name'])
 
     return site_list
 
@@ -166,17 +165,13 @@ def to_aeronet_api(cql2_filter: str | dict) -> str:
 
 def http_invoke(
     cql2_filter: str | dict,
-    base_url: str = AERONET_API_BASE_URL,
-    dry_run: bool = False,
-) -> str:
+    base_url: str = AERONET_API_BASE_URL
+) -> DataFrame:
     current_filter = to_aeronet_api(cql2_filter)
     url = f"{base_url}?{current_filter}"
-    if dry_run:
-        print(url)
-        return ''
 
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for HTTP error codes
-    data = response.text
+    raw_data = response.text
 
-    return data
+    return read_csv(StringIO(raw_data), skiprows=5)
