@@ -47,8 +47,10 @@ outputs:
 baseCommand: ["aeronet-client"]
 arguments:
   - "search"
-  - ${ const args = []; args.push('--format', 'geoparquet'); return args; }
-  - ${ const args = []; args.push('--output-file', 'output.geoparquet'); return args; }
+  - --format
+  - geoparquet
+  - --output-file
+  - output.geoparquet
   - ${
       const args = [];
       const filter = inputs.search_request?.filter;
