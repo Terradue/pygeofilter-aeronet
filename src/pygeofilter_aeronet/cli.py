@@ -107,7 +107,7 @@ def search(
         logger.info(f"You can browse data on: {url}?{to_aeronet_api(filter)}")
         return
 
-    data: DataFrame | None = http_invoke(cql2_filter, url)
+    data: DataFrame = http_invoke(cql2_filter, url)
 
     logger.success(f"Query on {url} successfully obtained data:")
 
