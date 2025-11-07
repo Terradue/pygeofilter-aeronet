@@ -17,20 +17,25 @@ from .evaluator import (
     http_invoke,
     to_aeronet_api
 )
+from .utils import to_geoparquet
 from enum import (
     auto,
     Enum
 )
-from io import StringIO
 from loguru import logger
+from pathlib import Path
 from pandas import DataFrame
+
 import click
 import json
-from .utils import to_geoparquet
 
 class FilterLang(Enum):
     CQL2_JSON = auto()
     CQL2_TEXT = auto()
+
+class OutputFormat(Enum):
+    GEOPARQUET = auto()
+    CSV = auto()
 
 @click.group()
 def main():
@@ -56,7 +61,7 @@ def main():
         case_sensitive=False
     ),
     required=False,
-    default=FilterLang.CQL2_JSON,
+    default=FilterLang.CQL2_JSON.name.lower(),
     help="Filter language used within the filter parameter"
 )
 @click.option(
@@ -68,13 +73,20 @@ def main():
 )
 @click.option(
     "--format",
-    type=click.Choice(["geoparquet", "csv"], case_sensitive=False),
-    default="geoparquet",
-    help="Output format (csv or geoparquet)"
+    type=click.Choice(
+        OutputFormat,
+        case_sensitive=False
+    ),
+    default=OutputFormat.GEOPARQUET.name.lower(),
+    help="Output format"
 )
 @click.option(
     "--output-file",
-    type=click.Path(writable=True, dir_okay=False, path_type=str),
+    type=click.Path(
+        writable=True,
+        dir_okay=False,
+        path_type=Path
+    ),
     required=True,
     help="Output file path"
 )
@@ -84,7 +96,7 @@ def search(
     filter_lang: FilterLang,
     dry_run: bool,
     format: str, 
-    output_file: str
+    output_file: Path
 ):
     cql2_filter: str | dict = filter
 
@@ -92,17 +104,19 @@ def search(
         cql2_filter = json.loads(filter)
 
     if dry_run:
-        print(to_aeronet_api(filter))
+        logger.info(f"You can browse data on: {url}?{to_aeronet_api(filter)}")
         return
 
     data: DataFrame | None = http_invoke(cql2_filter, url)
 
     logger.success(f"Query on {url} successfully obtained data:")
 
-    if format == "geoparquet":
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    if OutputFormat.GEOPARQUET == format:
         to_geoparquet(data, output_file)
-        logger.success(f"Data saved to GeoParquet file: {output_file}")
+        logger.success(f"Data saved to GeoParquet file: {output_file.absolute()}")
     else:
         data.to_csv(output_file, index=False)
-        logger.success(f"Data saved to to CSV file: {output_file}")
+        logger.success(f"Data saved to to CSV file: {output_file.absolute()}")
+
     print(data)
