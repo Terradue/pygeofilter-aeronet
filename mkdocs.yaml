@@ -75,6 +75,7 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
-  - Introduction: index.ipynb
+  - index.ipynb
+  - cli.ipynb
 
 copyright: <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a>
