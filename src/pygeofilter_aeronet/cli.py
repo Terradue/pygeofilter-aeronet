@@ -26,6 +26,7 @@ from loguru import logger
 from pandas import DataFrame
 import click
 import json
+from .utils import to_geoparquet
 
 class FilterLang(Enum):
     CQL2_JSON = auto()
@@ -65,11 +66,25 @@ def main():
     default=False,
     help="Just print the invoking URL with the built filter and exits"
 )
+@click.option(
+    "--format",
+    type=click.Choice(["geoparquet", "csv"], case_sensitive=False),
+    default="geoparquet",
+    help="Output format (csv or geoparquet)"
+)
+@click.option(
+    "--output-file",
+    type=click.Path(writable=True, dir_okay=False, path_type=str),
+    required=True,
+    help="Output file path"
+)
 def search(
     url: str,
     filter: str,
     filter_lang: FilterLang,
-    dry_run: bool
+    dry_run: bool,
+    format: str, 
+    output_file: str
 ):
     cql2_filter: str | dict = filter
 
@@ -84,4 +99,10 @@ def search(
 
     logger.success(f"Query on {url} successfully obtained data:")
 
+    if format == "geoparquet":
+        to_geoparquet(data, output_file)
+        logger.success(f"Data saved to GeoParquet file: {output_file}")
+    else:
+        data.to_csv(output_file, index=False)
+        logger.success(f"Data saved to to CSV file: {output_file}")
     print(data)

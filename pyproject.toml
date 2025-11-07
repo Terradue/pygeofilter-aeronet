@@ -31,8 +31,9 @@ dependencies = [
   "nose2",
   "loguru",
   "requests",
-  "pandas",
   "click>=8.3.0",
+  "geopandas",
+  "pyarrow",
 ]
 
 
