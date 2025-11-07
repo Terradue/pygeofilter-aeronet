@@ -46,6 +46,7 @@ def main():
     'url',
     type=click.STRING,
     required=True,
+    envvar='AERONET_API_BASE_URL',
     default=AERONET_API_BASE_URL
 )
 @click.option(
@@ -107,16 +108,19 @@ def search(
         logger.info(f"You can browse data on: {url}?{to_aeronet_api(filter)}")
         return
 
-    data: DataFrame = http_invoke(cql2_filter, url)
+    try:
+        data: DataFrame = http_invoke(cql2_filter, url)
 
-    logger.success(f"Query on {url} successfully obtained data:")
+        logger.success(f"Query on {url} successfully obtained data:")
 
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    if OutputFormat.GEOPARQUET == format:
-        to_geoparquet(data, output_file)
-        logger.success(f"Data saved to GeoParquet file: {output_file.absolute()}")
-    else:
-        data.to_csv(output_file, index=False)
-        logger.success(f"Data saved to to CSV file: {output_file.absolute()}")
+        print(data)
 
-    print(data)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        if OutputFormat.GEOPARQUET == format:
+            to_geoparquet(data, output_file)
+            logger.success(f"Data saved to GeoParquet file: {output_file.absolute()}")
+        else:
+            data.to_csv(output_file, index=False)
+            logger.success(f"Data saved to to CSV file: {output_file.absolute()}")
+    except Exception as e:
+        logger.error(e)
