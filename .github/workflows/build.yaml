@@ -25,7 +25,7 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: 3.x
-    - run: echo "APP_VERSION=$(awk -F'"' '/__version__/ {print $2}' src/pygeofilter_aeronet/__about__.py) >> $GITHUB_ENV
+    - run: echo "APP_VERSION=$(awk -F'"' '/__version__/ {print $2}' src/pygeofilter_aeronet/__about__.py)" >> $GITHUB_ENV
     - run: echo app version is $APP_VERSION
     - id: set-version
       run: echo "::set-output name=version::$APP_VERSION"
