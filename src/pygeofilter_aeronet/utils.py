@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pandas import DataFrame
-from geopandas import GeoDataFrame
-import geopandas as gpd
 from pathlib import Path
+
+import geopandas as gpd
+from geopandas import GeoDataFrame
+from pandas import DataFrame
 
 
 def to_geoparquet(data: DataFrame, file_path: Path) -> None:

@@ -1,0 +1,42 @@
+@startuml
+title Aeronet APIs
+
+enum DataOutputFormat {
+  CSV
+  GEOPARQUET
+}
+
+enum FilterLang {
+  CQL2_JSON
+  CQL2_TEXT
+}
+
+enum StationOutputFormat {
+  STAC_COLLECTION,
+  JSONL
+}
+
+class evaluator {
+    - AERONET_BASE_URL: str = 'https://aeronet.gsfc.nasa.gov'
+    - AERONET_API_URL: str = "{AERONET_BASE_URL}/cgi-bin/print_web_data_v3"
+    - AERONET_STATIONS_URL: str = "{AERONET_BASE_URL}/aeronet_locations_extended_v3.txt"
+    + dump_stations(stations_url: str = AERONET_STATIONS_URL) -> GeoDataFrame
+    + select_stations(filter: str | Mapping[str, Any] output_format: StationOutputFormat) -> StacCollection | jsonl
+    + select_aeronet_data(base_url: str = AERONET_API_URL, stations_filter: str | Mapping[str, Any], filter: str | Mapping[str, Any]) -> StacItem
+}
+
+evaluator -u-> StationOutputFormat
+evaluator --> StacCollection
+evaluator --> StacItem
+
+class cli {
+  +dump_stations(url: str = AERONET_BASE_URL, output: Path)
+  +search(url: str = AERONET_BASE_URL, filter: str, filter_lang: FilterLang, dry_run: bool, format: DataOutputFormat, output_file: Path)
+}
+
+cli -l-> evaluator
+cli -u-> FilterLang
+cli -u-> DataOutputFormat
+cli -u-> StationOutputFormat
+
+@enduml

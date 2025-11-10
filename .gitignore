@@ -1,5 +1,6 @@
 output.geoparquet
 output.csv
+docs/diagrams/out
 
 .vscode
 __pycache__

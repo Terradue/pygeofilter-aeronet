@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .evaluator import AERONET_API_BASE_URL, http_invoke, to_aeronet_api
-from .utils import to_geoparquet
-from enum import auto, Enum
-from loguru import logger
+import json
+from enum import Enum, auto
 from pathlib import Path
-from pandas import DataFrame
 
 import click
-import json
+from loguru import logger
+from pandas import DataFrame
+
+from .evaluator import AERONET_API_BASE_URL, http_invoke, to_aeronet_api
+from .utils import to_geoparquet
 
 
 class FilterLang(Enum):
