@@ -83,6 +83,13 @@ def main():
     required=True,
     help="Output file path",
 )
+@click.option(
+    "--verbose",
+    is_flag=True,
+    required=False,
+    default=False,
+    help="Traces the HTTP protocol."
+)
 def search(
     url: str,
     filter: str,
@@ -90,6 +97,7 @@ def search(
     dry_run: bool,
     format: str,
     output_file: Path,
+    verbose: bool
 ):
     cql2_filter: str | dict = filter
 
@@ -101,7 +109,11 @@ def search(
         return
 
     try:
-        data: DataFrame = http_invoke(cql2_filter, url)
+        data: DataFrame = http_invoke(
+            cql2_filter=cql2_filter,
+            base_url=url,
+            verbose=verbose
+        )
 
         logger.success(f"Query on {url} successfully obtained data:")
 

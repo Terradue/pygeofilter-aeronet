@@ -267,7 +267,8 @@ def _log_response(func):
 
 def http_invoke(
     cql2_filter: str | dict,
-    base_url: str = AERONET_API_BASE_URL
+    base_url: str = AERONET_API_BASE_URL,
+    verbose: Optional[bool] = False
 ) -> DataFrame:
     evaluator: AeronetEvaluator = AeronetEvaluator(IdempotentDict())
     string_filter = evaluator.evaluate(json_parse(cql2_filter))
@@ -277,9 +278,10 @@ def http_invoke(
     query_parameters = evaluator.query_parameters
 
     with AeronetClient(base_url=base_url) as aeronet_client:
-        http_client: Client = aeronet_client.get_httpx_client()
-        http_client.build_request = _log_request(http_client.build_request) # type: ignore
-        http_client.request = _log_response(http_client.request) # type: ignore
+        if verbose:
+            http_client: Client = aeronet_client.get_httpx_client()
+            http_client.build_request = _log_request(http_client.build_request) # type: ignore
+            http_client.request = _log_response(http_client.request) # type: ignore
         raw_data = aeronet_search(client=aeronet_client, **query_parameters)
 
     return read_csv(StringIO(raw_data), skiprows=5)
