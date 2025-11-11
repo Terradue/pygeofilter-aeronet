@@ -310,6 +310,6 @@ components:
     Success:
       description: Successful response
       content:
-        text/csv::
+        text/csv:
           schema:
             type: string
