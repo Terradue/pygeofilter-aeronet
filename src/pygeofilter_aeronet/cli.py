@@ -312,13 +312,13 @@ def dump_locations(
                         )
                     },
                     bbox=[
-                        latitude,
                         longitude,
                         latitude,
-                        longitude
+                        longitude,
+                        latitude
                     ],
                     datetime=datetime.now(),
-                    geometry=mapping(Point([latitude, longitude])),
+                    geometry=mapping(Point([longitude, latitude])),
                     properties={
                         'title': row['Name'],
                         'acquisition': {
