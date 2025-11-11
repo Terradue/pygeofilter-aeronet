@@ -12,33 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import numbers
-import os
-from datetime import date, datetime
-from io import StringIO
-from typing import Any, Mapping, MutableMapping, Optional, Sequence
-
-import shapely
-
-from .aeronet_client import Client as AeronetClient
 from .aeronet_client.models.search_avg import SearchAVG
-from .aeronet_client.api.default.search import sync as aeronet_search
-from functools import wraps
-from http import HTTPStatus
-from httpx import (
-    Client,
-    Headers,
-    Request,
-    RequestNotRead,
-    Response
+from datetime import (
+    date,
+    datetime
 )
-from loguru import logger
-from pandas import DataFrame, read_csv
+from pandas import (
+    DataFrame,
+    read_csv
+)
 from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
+from typing import (
+    Any,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple
+)
+
+import json
+import numbers
+import shapely
+import os
 
 def read_aeronet_site_list(filepath: str) -> Sequence[str]:
     """
@@ -62,8 +61,6 @@ def read_aeronet_site_list(filepath: str) -> Sequence[str]:
 
     return site_list
 
-
-AERONET_API_BASE_URL = "https://aeronet.gsfc.nasa.gov"
 
 AERONET_DATA_TYPES = [
     "AOD10",
@@ -192,96 +189,11 @@ class AeronetEvaluator(Evaluator):
 
         return f"lon1={rhs[0]}&lat1={rhs[1]}&lon2={rhs[2]}&lat2={rhs[3]}"
 
-
-def to_aeronet_api_querystring(
-    root: ast.AstType,
-    field_mapping: Mapping[str, str],
-    function_map: Optional[Mapping[str, str]] = None,
-) -> str:
-    return AeronetEvaluator(field_mapping, function_map).evaluate(root)
-
-
-def to_aeronet_api(cql2_filter: str | dict) -> str:
-    return to_aeronet_api_querystring(json_parse(cql2_filter), IdempotentDict())
-
-
-def _decode(value):
-    if not value:
-        return ''
-
-    if isinstance(value, str):
-        return value
-
-    return value.decode("utf-8")
-
-
-def _log_request(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        request: Request = func(*args, **kwargs)
-
-        logger.warning(f"{request.method} {request.url}")
-
-        headers: Headers = request.headers
-        for name, value in headers.raw:
-            logger.warning(f"> {_decode(name)}: {_decode(value)}")
-
-        logger.warning('>')
-        try:
-            if request.content:
-                logger.warning(_decode(request.content))
-        except RequestNotRead as r:
-            logger.warning('[REQUEST BUILT FROM STREAM, OMISSING]')
-
-        return request
-    return wrapper
-
-
-def _log_response(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        response: Response = func(*args, **kwargs)
-
-        if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
-            log = logger.error
-        else:
-            log = logger.success
-
-        status: HTTPStatus = HTTPStatus(response.status_code)
-        log(f"< {status._value_} {status.phrase}")
-
-        headers: Mapping[str, str] = response.headers
-        for name, value in headers.items():
-            log(f"< {_decode(name)}: {_decode(value)}")
-
-        log('')
-
-        if response.content:
-            log(_decode(response.content))
-
-        if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
-            raise RuntimeError(f"A server error occurred when invoking {kwargs['method'].upper()} {kwargs['url']}, read the logs for details")
-        return response
-    return wrapper
-
-
-def http_invoke(
-    cql2_filter: str | dict,
-    base_url: str = AERONET_API_BASE_URL,
-    verbose: Optional[bool] = False
-) -> DataFrame:
+def to_aeronet_api(
+    cql2_filter: str | Mapping[str, Any]
+) -> Tuple[str, Mapping[str, Any]]:
     evaluator: AeronetEvaluator = AeronetEvaluator(IdempotentDict())
-    string_filter = evaluator.evaluate(json_parse(cql2_filter))
-
-    logger.debug(f"AERONET service filter: {string_filter}")
-
-    query_parameters = evaluator.query_parameters
-
-    with AeronetClient(base_url=base_url) as aeronet_client:
-        if verbose:
-            http_client: Client = aeronet_client.get_httpx_client()
-            http_client.build_request = _log_request(http_client.build_request) # type: ignore
-            http_client.request = _log_response(http_client.request) # type: ignore
-        raw_data = aeronet_search(client=aeronet_client, **query_parameters)
-
-    return read_csv(StringIO(raw_data), skiprows=5)
+    root: ast.AstType = json_parse(cql2_filter)
+    querystring: str = evaluator.evaluate(root)
+    query_parameters: Mapping[str, Any] = evaluator.query_parameters
+    return (querystring, query_parameters)

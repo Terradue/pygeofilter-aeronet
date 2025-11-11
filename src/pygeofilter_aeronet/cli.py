@@ -12,16 +12,92 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+from .aeronet_client import Client as AeronetClient
+from .aeronet_client.api.default.search import sync as aeronet_search
+from .evaluator import to_aeronet_api
+from .utils import to_geoparquet
 from enum import Enum, auto
+from functools import wraps
+from http import HTTPStatus
+from httpx import (
+    Client,
+    Headers,
+    Request,
+    RequestNotRead,
+    Response
+)
+from io import StringIO
+from loguru import logger
+from pandas import (
+    DataFrame,
+    read_csv
+)
 from pathlib import Path
 
+import json
 import click
-from loguru import logger
-from pandas import DataFrame
 
-from .evaluator import AERONET_API_BASE_URL, http_invoke, to_aeronet_api
-from .utils import to_geoparquet
+AERONET_API_BASE_URL = "https://aeronet.gsfc.nasa.gov"
+
+
+def _decode(value):
+    if not value:
+        return ''
+
+    if isinstance(value, str):
+        return value
+
+    return value.decode("utf-8")
+
+
+def _log_request(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        request: Request = func(*args, **kwargs)
+
+        logger.warning(f"{request.method} {request.url}")
+
+        headers: Headers = request.headers
+        for name, value in headers.raw:
+            logger.warning(f"> {_decode(name)}: {_decode(value)}")
+
+        logger.warning('>')
+        try:
+            if request.content:
+                logger.warning(_decode(request.content))
+        except RequestNotRead as r:
+            logger.warning('[REQUEST BUILT FROM STREAM, OMISSING]')
+
+        return request
+    return wrapper
+
+
+def _log_response(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        response: Response = func(*args, **kwargs)
+
+        if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
+            log = logger.error
+        else:
+            log = logger.success
+
+        status: HTTPStatus = HTTPStatus(response.status_code)
+        log(f"< {status._value_} {status.phrase}")
+
+        headers: Mapping[str, str] = response.headers
+        for name, value in headers.items():
+            log(f"< {_decode(name)}: {_decode(value)}")
+
+        log('')
+
+        if response.content:
+            log(_decode(response.content))
+
+        if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
+            raise RuntimeError(f"A server error occurred when invoking {kwargs['method'].upper()} {kwargs['url']}, read the logs for details")
+        return response
+    return wrapper
 
 
 class FilterLang(Enum):
@@ -104,16 +180,20 @@ def search(
     if FilterLang.CQL2_JSON == filter_lang:
         cql2_filter = json.loads(filter)
 
+    filter, query_parameters = to_aeronet_api(cql2_filter)
+
     if dry_run:
         logger.info(f"You can browse data on: {url}?{to_aeronet_api(filter)}")
         return
 
     try:
-        data: DataFrame = http_invoke(
-            cql2_filter=cql2_filter,
-            base_url=url,
-            verbose=verbose
-        )
+        with AeronetClient(base_url=url) as aeronet_client:
+            if verbose:
+                http_client: Client = aeronet_client.get_httpx_client()
+                http_client.build_request = _log_request(http_client.build_request) # type: ignore
+                http_client.request = _log_response(http_client.request) # type: ignore
+            raw_data = aeronet_search(client=aeronet_client, **query_parameters)
+            data: DataFrame = read_csv(StringIO(raw_data), skiprows=5)
 
         logger.success(f"Query on {url} successfully obtained data:")
 
@@ -128,3 +208,22 @@ def search(
             logger.success(f"Data saved to to CSV file: {output_file.absolute()}")
     except Exception as e:
         logger.error(e)
+
+@main.command(context_settings={"show_default": True})
+@click.argument(
+    "url",
+    type=click.STRING,
+    required=True,
+    envvar="AERONET_API_BASE_URL",
+    default=AERONET_API_BASE_URL,
+)
+@click.option(
+    "--verbose",
+    is_flag=True,
+    required=False,
+    default=False,
+    help="Traces the HTTP protocol."
+)
+def dump_stations():
+
+    pass
