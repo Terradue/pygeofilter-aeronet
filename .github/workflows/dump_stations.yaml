@@ -2,12 +2,9 @@
 # the action will run daily (cron) and store the output in the artifacts
 name: Dump Aeronet Stations
 on: 
-    # schedule:
-    #     - cron: '0 0 * * *'  # Runs daily at midnight UTC
-    # workflow_dispatch:
-  push:
-    branches:
-      - develop
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+
 jobs:
     dump_stations:
         runs-on: ubuntu-latest
