@@ -33,6 +33,7 @@ jobs:
                   git config --global user.email 'github-actions@github.com'
                   # create the branch if it doesn't exist locally or remotely
                   git checkout -B stations-update
+                  git pull origin stations-update || echo "Branch does not exist remotely"
                   git add ./stations.parquet
                   git commit -m 'Update stations.parquet' || echo "No changes to commit"
                   git push origin stations-update
