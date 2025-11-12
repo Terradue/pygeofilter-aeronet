@@ -26,6 +26,7 @@ jobs:
 
             - name: Dump Aeronet Stations to GeoParquet
               run: |
+                  set -x
                   aeronet-client dump-stations --verbose --output-file=./stations.parquet
                   # git add and commit the file
                   git config --global user.name 'github-actions'
