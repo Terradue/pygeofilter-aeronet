@@ -15,29 +15,71 @@
 version: '3'
 
 tasks:
-  base_ruff:
+  install_ruff:
+    internal: true
     cmds:
-      - pip install ruff pre-commit
-      - ruff --version
+    - pip install ruff pre-commit
+
+  base_ruff:
+    deps:
+    - install_ruff
+    cmds:
+    - ruff --version
 
   ruff_check:
+    deps:
+    - install_ruff
     cmds:
-      - pip install ruff pre-commit
-      #ruff check --fix-only
-      - ruff check --output-format=gitlab > code-quality-report.json
+    #ruff check --fix-only
+    - ruff check --output-format=gitlab > code-quality-report.json
 
   ruff_format:
+    deps:
+    - install_ruff
     cmds:
-      - pip install ruff pre-commit
-      - ruff format --diff
+    - ruff format --diff
+
+  install_hatch:
+    internal: true
+    cmds:
+    - pip install hatch
 
   package:
+    deps:
+    - install_hatch
     cmds:
-      - pip install hatch
-      - hatch build
-      - hatch -e default run nose2 tests
+    - hatch build
+    - hatch -e default run nose2 tests
+
+  install_mkdocs:
+    internal: true
+    cmds:
+    - pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter mkdocs-build-plantuml-plugin
 
   serve-docs:
+    deps:
+    - install_mkdocs
     cmds:
-      - pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter
-      - mkdocs serve
+    - mkdocs serve
+
+  run-clt: 
+    cmds:
+    - cwltool cwl-clt/aeronet-client.cwl docs/cwl/inputs.yaml 
+
+  install_openapi_prerequisites:
+    internal: true
+    cmds:
+    - npm i -g @redocly/cli@latest
+    - pip install openapi-python-client
+
+  generate_openapi:
+    deps:
+    - install_openapi_prerequisites
+    cmds:
+    - redocly build-docs ./schemas/aeronet_openapi.yaml --output=./docs/aeronet_openapi.html
+    - |
+      openapi-python-client generate \
+      --meta none \
+      --path ./schemas/aeronet_openapi.yaml \
+      --output-path ./src/pygeofilter_aeronet/aeronet_client \
+      --overwrite

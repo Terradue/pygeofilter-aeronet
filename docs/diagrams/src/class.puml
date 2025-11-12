@@ -1,0 +1,34 @@
+@startuml
+title Aeronet APIs
+
+enum DataOutputFormat {
+  CSV
+  GEOPARQUET
+}
+
+enum FilterLang {
+  CQL2_JSON
+  CQL2_TEXT
+}
+
+enum StationOutputFormat {
+  STAC_COLLECTION,
+  JSONL
+}
+
+class evaluator {
+  +to_aeronet_api(cql2_filter: str | Mapping[str, Any]) -> Tuple[str, Mapping[str, Any]]
+}
+
+class cli {
+  - AERONET_BASE_URL: str = 'https://aeronet.gsfc.nasa.gov'
+  +dump_stations(url: str = AERONET_BASE_URL, output: Path)
+  +search(url: str = AERONET_BASE_URL, filter: str, filter_lang: FilterLang, dry_run: bool, format: DataOutputFormat, output_file: Path)
+}
+
+cli -l-> evaluator
+cli -u-> FilterLang
+cli -u-> DataOutputFormat
+cli -u-> StationOutputFormat
+
+@enduml
