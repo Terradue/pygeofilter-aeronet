@@ -31,7 +31,8 @@ jobs:
                   # git add and commit the file
                   git config --global user.name 'github-actions'
                   git config --global user.email 'github-actions@github.com'
-                  git checkout stations-update
+                  # create the branch if it doesn't exist locally or remotely
+                  git checkout -B stations-update
                   git add ./stations.parquet
-                  git commit -m 'Update stations.parquet'
-                  git push origin HEAD:stations-update
+                  git commit -m 'Update stations.parquet' || echo "No changes to commit"
+                  git push origin stations-update
