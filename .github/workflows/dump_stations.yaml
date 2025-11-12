@@ -35,5 +35,5 @@ jobs:
                   git checkout -B stations-update
                   git pull origin stations-update || echo "Branch does not exist remotely"
                   git add ./stations.parquet
-                  git commit -m 'Update stations.parquet' || echo "No changes to commit"
+                  git commit -m "Update stations.parquet $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
                   git push origin stations-update
