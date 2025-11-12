@@ -26,6 +26,7 @@ classifiers = [
 ]
 dependencies = [
   "pygeofilter>=0.3.1",
+  "pygeofilter-duckdb @ git+https://github.com/Terradue/pygeofilter-duckdb.git",
   "ipykernel",
   "shapely",
   "nose2",
@@ -42,6 +43,8 @@ dependencies = [
   "stac-geoparquet"
 ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [project.urls]
 Documentation = "https://github.com/Terradue/pygeofilter-aeronet#readme"

@@ -16,7 +16,10 @@ from .aeronet_client import Client as AeronetClient
 from .aeronet_client.api.default.search import sync as aeronet_search
 from .aeronet_client.api.default.get_stations import sync as get_stations
 from .evaluator import to_aeronet_api
-from .utils import to_geoparquet
+from .utils import (
+    to_geoparquet,
+    query_from_parquet
+)
 from datetime import datetime
 from enum import Enum, auto
 from functools import wraps
@@ -37,7 +40,9 @@ from pandas import (
 from pathlib import Path
 from pystac import (
     Asset,
-    Item
+    Extent,
+    Item,
+    ItemCollection
 )
 from shapely.geometry import (
     Point,
@@ -54,7 +59,9 @@ from typing import (
 import click
 import json
 import os
+import sys
 import time    
+import uuid
 
 
 AERONET_API_BASE_URL = "https://aeronet.gsfc.nasa.gov"
@@ -131,7 +138,7 @@ class SearchOutputFormat(Enum):
     CSV = auto()
 
 
-class StationsOutputFormat(Enum):
+class QueryOutputFormat(Enum):
     JSONL = auto()
     STAC = auto()
 
@@ -270,7 +277,7 @@ def search(
     "--output-file",
     type=click.Path(writable=True, dir_okay=False, path_type=Path),
     required=True,
-    default=Path(os.path.join(os.path.dirname(__file__), "data", "aeronet_locations_extended_v3.geoparquet")),
+    default=Path(os.path.join(os.path.dirname(__file__), "data", "aeronet_locations_extended_v3.parquet")),
     help="Output file path",
 )
 @click.option(
@@ -280,74 +287,146 @@ def search(
     default=False,
     help="Traces the HTTP protocol."
 )
-def dump_locations(
+def dump_stations(
     url: str,
     output_file: Path,
     verbose: bool
 ):
-    try:
-        with AeronetClient(base_url=url) as aeronet_client:
-            if verbose:
-                http_client: Client = aeronet_client.get_httpx_client()
-                http_client.build_request = _log_request(http_client.build_request) # type: ignore
-                http_client.request = _log_response(http_client.request) # type: ignore
-            raw_data = get_stations(client=aeronet_client)
-            data_frame: DataFrame = read_csv(StringIO(raw_data), skiprows=1)
+    with AeronetClient(base_url=url) as aeronet_client:
+        if verbose:
+            http_client: Client = aeronet_client.get_httpx_client()
+            http_client.build_request = _log_request(http_client.build_request) # type: ignore
+            http_client.request = _log_response(http_client.request) # type: ignore
+        raw_data = get_stations(client=aeronet_client)
+        data_frame: DataFrame = read_csv(StringIO(raw_data), skiprows=1)
 
-            logger.info('Converting CSV data to STAC Items:')
+        logger.info('Converting CSV data to STAC Items:')
 
-            items: List[Item] = []
+        items: List[Item] = []
 
-            for _, row in data_frame.iterrows():
-                latitude = row['Latitude(decimal_degrees)']
-                longitude = row['Longitude(decimal_degrees)']
+        for _, row in data_frame.iterrows():
+            def _to_date(column: str):
+                return datetime.strptime(row[column], "%d-%m-%Y")
 
-                current_item: Item = Item(
-                    id=row['New_Site_ID'],
-                    assets={
-                        'source': Asset(
-                            href=f"{url}/aeronet_locations_extended_v3.txt",
-                            media_type='text/csv',
-                            description='Data source'
-                        )
-                    },
-                    bbox=[
-                        longitude,
-                        latitude,
-                        longitude,
-                        latitude
-                    ],
-                    datetime=datetime.now(),
-                    geometry=mapping(Point([longitude, latitude])),
-                    properties={
-                        'title': row['Name'],
-                        'acquisition': {
-                            'start': row['Data_Start_date(dd-mm-yyyy)'],
-                            'end': row['Data_End_Date(dd-mm-yyyy)'],
-                            'L10': row['Number_of_days_L1'],
-                            'L15': row['Number_of_days_L1.5'],
-                            'L20': row['Number_of_days_L2'],
-                            'moon_L20': row['Number_of_days_Moon_L1.5'],
-                        }
-                    }
-                )
+            latitude = row['Latitude(decimal_degrees)']
+            longitude = row['Longitude(decimal_degrees)']
+            altitude = row['Altitude(Meters)']
+            start_datetime = _to_date('Data_Start_date(dd-mm-yyyy)')
+            end_datetime = _to_date('Data_End_Date(dd-mm-yyyy)')
 
-                items.append(current_item)
+            current_item: Item = Item(
+                id=row['New_Site_ID'],
+                stac_extensions=[
+                    'https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json'
+                ],
+                assets={
+                    'source': Asset(
+                        href=f"{url}/aeronet_locations_extended_v3.txt",
+                        media_type='text/csv',
+                        description='Data source'
+                    )
+                },
+                bbox=[
+                    longitude,
+                    latitude,
+                    longitude,
+                    latitude
+                ],
+                datetime=datetime.now(),
+                start_datetime=start_datetime,
+                end_datetime=end_datetime,
+                geometry=mapping(Point([longitude, latitude, altitude])),
+                properties={
+                    'title': row['Name'],
+                    'aeronet:site_name': row['Name'],
+                    'aeronet:land_use_type': row['Land_Use_type'],
+                    'aeronet:L10': row['Number_of_days_L1'],
+                    'aeronet:L15': row['Number_of_days_L1.5'],
+                    'aeronet:L20': row['Number_of_days_L2'],
+                    'aeronet:moon_L20': row['Number_of_days_Moon_L1.5'],
+                }
+            )
 
-            logger.success('CSV data converted to STAC Items')
+            items.append(current_item)
 
-            logger.info('Converting the STAC Items pyarrow Table...')
-            record_batch_reader = parse_stac_items_to_arrow(items)
-            table = record_batch_reader.read_all()
-            logger.success('STAC Items converted to pyarrow Table')
-            
-            logger.info(f"Saving the GeoParquet data to {output_file}...")
-            output_file.parent.mkdir(parents=True, exist_ok=True)
-            to_parquet(table, output_path=output_file)
-            logger.info(f"GeoParquet data saved to {output_file}")
-    except Exception as e:
-        logger.error(e)
+        logger.success('CSV data converted to STAC Items')
+
+        logger.info('Converting the STAC Items pyarrow Table...')
+        record_batch_reader = parse_stac_items_to_arrow(items)
+        table = record_batch_reader.read_all()
+        logger.success('STAC Items converted to pyarrow Table')
+
+        logger.info(f"Saving the GeoParquet data to {output_file.absolute()}...")
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        to_parquet(table, output_path=output_file)
+        logger.success(f"GeoParquet data saved to {output_file.absolute()}")
 
 
-for command in [dump_locations, search]:
+def _support_datetime_serialization(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    return obj
+
+
+@main.command(context_settings={"show_default": True})
+@click.argument(
+    "file_path",
+    type=click.Path(writable=True, dir_okay=False, path_type=Path),
+    required=True
+)
+@click.option(
+    "--filter",
+    type=click.STRING,
+    required=True,
+    help="Filter on queryables using language specified in filter-lang parameter",
+)
+@click.option(
+    "--filter-lang",
+    type=click.Choice([f.value for f in FilterLang], case_sensitive=False),
+    required=False,
+    default=FilterLang.CQL2_JSON.value,
+    help="Filter language used within the filter parameter",
+)
+@click.option(
+    "--format",
+    type=click.Choice(QueryOutputFormat, case_sensitive=False),
+    default=QueryOutputFormat.JSONL.name.lower(),
+    help="Output format",
+)
+def query(
+    file_path: Path,
+    filter: str,
+    filter_lang: FilterLang,
+    format: QueryOutputFormat
+):
+    cql2_filter: str | dict = filter
+
+    if FilterLang.CQL2_JSON == filter_lang:
+        cql2_filter = json.loads(filter)
+
+    sql_query, items = query_from_parquet(file_path, cql2_filter)
+
+    logger.info(f"Filtered data with `{sql_query}` query on {file_path.absolute()} parquet file:")
+
+    match format:
+        case QueryOutputFormat.JSONL:
+            for item in items:
+                json.dump(item.to_dict(), sys.stdout, default=_support_datetime_serialization)
+                print()
+
+        case QueryOutputFormat.STAC:
+            collection: ItemCollection = ItemCollection(
+                items=items
+            )
+            json.dump(
+                collection.to_dict(),
+                sys.stdout,
+                default=_support_datetime_serialization,
+                indent=2
+            )
+
+        case _:
+            logger.error(f"It's not you, it's us: output format {format} not supported")
+
+for command in [dump_stations, query, search]:
     command.callback = _track(command.callback)
