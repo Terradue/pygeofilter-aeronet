@@ -12,53 +12,104 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from geopandas import GeoDataFrame
+from datetime import datetime
+from functools import wraps
+from http import HTTPStatus
+from httpx import (
+    Client,
+    Headers,
+    Request,
+    RequestNotRead,
+    Response
+)
+from loguru import logger
 from pandas import DataFrame
 from pathlib import Path
 from pygeofilter.parsers.cql2_json import parse as json_parse
-from pygeofilter_duckdb import to_sql_where
-from pygeofilter.util import IdempotentDict
 from pystac.item import Item
-from stac_geoparquet.arrow import stac_table_to_items
 from typing import (
-    List,
-    Tuple
+    Any,
+    Mapping,
+    Optional
 )
 
-import duckdb
-import geopandas as gpd
+import json
+import sys
 
-duckdb.install_extension("spatial")
-duckdb.load_extension("spatial")
+def _support_datetime_serialization(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    return obj
 
-def to_geoparquet(data: DataFrame, file_path: Path) -> None:
-    # convert DataFrame to GeoParquet and save to file_path
-    # the lat/lon columns are Site_Latitude(Degrees) and Site_Longitude(Degrees)
-    gdf = GeoDataFrame(
-        data,
-        geometry=gpd.points_from_xy(
-            data["Site_Longitude(Degrees)"], data["Site_Latitude(Degrees)"]
-        ),
+
+def json_dump(
+    obj: Any,
+    pretty_print: bool = False):
+    json.dump(
+        obj,
+        sys.stdout,
+        default=_support_datetime_serialization,
+        indent=2 if pretty_print else None
     )
-    gdf.set_crs("EPSG:4326", inplace=True)
-    gdf.to_parquet(file_path, engine="pyarrow", compression="gzip")
 
-def query_from_parquet(
-    file_path: Path,
-    cql2_filter: str | dict
-) -> Tuple[str, List[Item]]:
-    sql_where = to_sql_where(
-        root=json_parse(cql2_filter), # type: ignore
-        field_mapping=IdempotentDict() # type: ignore
-    )
-    sql_query = f"SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) as geometry FROM '{file_path.absolute()}' WHERE {sql_where}"
-    results_set = duckdb.query(sql_query)
-    results_table = results_set.fetch_arrow_table()
 
-    items: List[Item] = []
+def _decode(value):
+    if not value:
+        return ''
+
+    if isinstance(value, str):
+        return value
+
+    return value.decode("utf-8")
+
+
+def _log_request(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        request: Request = func(*args, **kwargs)
+
+        logger.warning(f"{request.method} {request.url}")
+
+        headers: Headers = request.headers
+        for name, value in headers.raw:
+            logger.warning(f"> {_decode(name)}: {_decode(value)}")
+
+        logger.warning('>')
+        try:
+            if request.content:
+                logger.warning(_decode(request.content))
+        except RequestNotRead as r:
+            logger.warning('[REQUEST BUILT FROM STREAM, OMISSING]')
+
+        return request
+    return wrapper
+
+
+def _log_response(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        response: Response = func(*args, **kwargs)
+
+        if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
+            log = logger.error
+        else:
+            log = logger.success
+
+        status: HTTPStatus = HTTPStatus(response.status_code)
+        log(f"< {status._value_} {status.phrase}")
+
+        headers: Mapping[str, str] = response.headers
+        for name, value in headers.items():
+            log(f"< {_decode(name)}: {_decode(value)}")
+
+        log('')
+
+        if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
+            raise RuntimeError(f"A server error occurred when invoking {kwargs['method'].upper()} {kwargs['url']}, read the logs for details")
+        return response
+    return wrapper
+
+def verbose_client(http_client: Client):
+    http_client.build_request = _log_request(http_client.build_request) # type: ignore
+    http_client.request = _log_response(http_client.request) # type: ignore
     
-    for item in stac_table_to_items(results_table):
-        #item["assets"] = json.loads(item["assets"])
-        items.append(Item.from_dict(item))
-
-    return (sql_query, items)

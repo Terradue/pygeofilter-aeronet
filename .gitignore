@@ -1,8 +1,5 @@
-output.geoparquet
-output.csv
-locations.geoparquet
-stations.geoparquet
-locations.parquet
+*.csv
+*.parquet
 docs/diagrams/out
 
 .vscode
