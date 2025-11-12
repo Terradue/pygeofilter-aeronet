@@ -42,6 +42,18 @@ plugins:
       execute: true
       show_input: True
       no_input: False
+  - build_plantuml:
+      render: 'server' # or "local" for local rendering
+      disable_ssl_certificate_validation: true # for self-signed and invalid certs
+      output_format: 'svg'
+      allow_multiple_roots: false # in case your codebase contains more locations for diagrams (all ending in diagram_root)
+      diagram_root: 'docs/diagrams' # should reside under docs_dir
+      input_folder: 'src'
+      output_folder: 'out'
+      theme_enabled: true
+      theme_folder: "include/themes"
+      theme_light: "light.puml"
+      theme_dark: "dark.puml"
 
 markdown_extensions:
   - pymdownx.details
@@ -77,6 +89,9 @@ extra_javascript:
 nav:
   - index.ipynb
   - cli.md
+  - Design:
+    - AERONET OpenAPI: ./aeronet_openapi.html
+    - design.md
   - API doc: api/latest/pygeofilter-aeronet/index.md
 
 copyright: <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a>

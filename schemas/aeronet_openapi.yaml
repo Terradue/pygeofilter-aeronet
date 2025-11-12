@@ -1,0 +1,315 @@
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+openapi: 3.0.0
+
+info:
+  title: AERONET APIs
+  description: AERONET search APIs
+  version: 1.0.0
+  contact:
+    name: AERONET APIs
+    url: https://www.terradue.com/portal/
+  license:
+    name: Apache-2.0
+    url: https://opensource.org/licenses/MIT
+
+servers:
+- url: https://aeronet.gsfc.nasa.gov
+  description: Base URL of AERONET instance
+
+paths:
+  /aeronet_locations_extended_v3.txt:
+    get:
+      summary: Retrieves the list of AERONET stations
+      operationId: get_stations
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /cgi-bin/print_web_data_v3:
+    get:
+      summary: Filters AERONET Version 3 products via web data service 
+      operationId: search
+      parameters:
+      - in: query
+        name: year
+        required: true
+        schema:
+          type: integer
+          format: int32
+        description: 'Starting time moment, Year: 1993 to present (must be 4-digits).'
+      - in: query
+        name: month
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 12
+        description: 'Starting time moment, : Month: 1 to 12.'
+      - in: query
+        name: day
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 31
+        description: 'Starting time moment, Day: 1 to max_day_of_month.'
+      - in: query
+        name: AVG
+        required: true
+        schema:
+          type: integer
+          format: int32
+          enum:
+          - 10
+          - 20
+        description: |
+          Data Format:
+          - All points: AVG=10
+          - Daily average: AVG=20
+      - in: query
+        name: AOD10
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: Aerosol Optical Depth Level 1.0
+      - in: query
+        name: AOD15
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: Aerosol Optical Depth Level 1.5
+      - in: query
+        name: AOD20
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: Aerosol Optical Depth Level 2.0
+      - in: query
+        name: SDA10
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: SDA Retrieval Level 1.0
+      - in: query
+        name: SDA15
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: SDA Retrieval Level 1.5
+      - in: query
+        name: SDA20
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: SDA Retrieval Level 2.0
+      - in: query
+        name: TOT10
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: Total Optical Depth based on AOD Level 1.0 (all points only)
+      - in: query
+        name: TOT15
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: Total Optical Depth based on AOD Level 1.5 (all points only)
+      - in: query
+        name: TOT20
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1
+        description: Total Optical Depth based on AOD Level 2.0 (all points only)
+      - in: query
+        name: year2
+        required: false
+        schema:
+          type: integer
+          format: int32
+        description: |
+          Ending time moment, Year: 1993 to present (must be 4-digits).
+
+          If `year2`, `month2`, and `day2` are omitted, then the current day is assumed.
+      - in: query
+        name: month2
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 12
+        description: |
+          Ending time moment, : Month: 1 to 12.
+
+          If `year2`, `month2`, and `day2` are omitted, then the current day is assumed.
+      - in: query
+        name: day2
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 31
+        description: |
+          Ending time moment, Day: 1 to max_day_of_month.
+
+          If `year2`, `month2`, and `day2` are omitted, then the current day is assumed.
+      - in: query
+        name: hour
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 23
+        description: |
+          Specified beginning hour.
+
+          If not specified, then the hour is set to zero
+      - in: query
+        name: hour2
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 23
+        description: |
+          Specified ending hour.
+
+          If not specified, then `time2` is incremented to next day and `hour2=0`.
+      - in: query
+        name: site
+        required: false
+        schema:
+          type: string
+        description: |
+          Exact match of AERONET database name
+
+          If none specified, then all sites are searched for data during the time interval specified.
+      - in: query
+        name: lat1
+        required: false
+        schema:
+          type: number
+          format: double
+        description: |
+          Bounding Box
+
+          `lat1`, `lon1`: Lower Left
+
+          Value must be in decimal degrees (including the decimal).
+      - in: query
+        name: lon1
+        required: false
+        schema:
+          type: number
+          format: double
+        description: |
+          Bounding Box
+
+          `lat1`, `lon1`: Lower Left
+
+          Value must be in decimal degrees (including the decimal).
+      - in: query
+        name: lat2
+        required: false
+        schema:
+          type: number
+          format: double
+        description: |
+          Bounding Box
+
+          `lat2`, `lon2`: Upper Right
+
+          Value must be in decimal degrees (including the decimal).
+      - in: query
+        name: lon2
+        required: false
+        schema:
+          type: number
+          format: double
+        description: |
+          Bounding Box
+
+          `lat2`, `lon2`: Upper Right
+
+          Value must be in decimal degrees (including the decimal).
+      - in: query
+        name: lunar_merge
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 1
+        description: |
+          Enable Lunar AOD (Provisional) Only Download:
+          - `0` - No Lunar;
+          - `1` - Lunar Data (Provisional).
+      - in: query
+        name: if_no_html
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 1
+        description: |
+          Determine whether html formatting is printed:
+          - `0` - HTML formatting printed (default);
+          - `1` - Lunar Data (Provisional).
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+components:
+  responses:
+    Success:
+      description: Successful response
+      content:
+        text/csv:
+          schema:
+            type: string

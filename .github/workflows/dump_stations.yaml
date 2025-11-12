@@ -1,0 +1,36 @@
+# a github action to get the list of aeronet stations and dump it as a geoparquet file
+# the action will run daily (cron) and store the output in the artifacts
+name: Dump Aeronet Stations
+on: 
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+
+jobs:
+    dump_stations:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Python 3.x
+              uses: actions/setup-python@v5
+              with:
+                  python-version: 3.12
+
+            - name: Install dependencies
+              run: |
+                  pip install .
+
+            - name: Dump Aeronet Stations to GeoParquet
+              run: |
+                  set -x
+                  aeronet-client dump-stations --verbose --output-file=./stations.parquet
+                  # git add and commit the file
+                  git config --global user.name 'github-actions'
+                  git config --global user.email 'github-actions@github.com'
+                  # create the branch if it doesn't exist locally or remotely
+                  git checkout -B stations-update
+                  git pull origin stations-update || echo "Branch does not exist remotely"
+                  git add ./stations.parquet
+                  git commit -m "Update stations.parquet $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+                  git push origin stations-update

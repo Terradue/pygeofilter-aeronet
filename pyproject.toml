@@ -26,16 +26,25 @@ classifiers = [
 ]
 dependencies = [
   "pygeofilter>=0.3.1",
+  "pygeofilter-duckdb",
   "ipykernel",
   "shapely",
   "nose2",
   "loguru",
   "requests",
   "click>=8.3.0",
+  "pandas>=2.3",
   "geopandas",
   "pyarrow",
+  "httpx>=0.23.0,<0.29.0",
+  "attrs>=22.2.0",
+  "python-dateutil>=2.8.2",
+  "pystac",
+  "stac-geoparquet"
 ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [project.urls]
 Documentation = "https://github.com/Terradue/pygeofilter-aeronet#readme"
