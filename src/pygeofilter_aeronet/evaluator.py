@@ -193,7 +193,7 @@ def to_aeronet_api(
     cql2_filter: str | Mapping[str, Any]
 ) -> Tuple[str, Mapping[str, Any]]:
     evaluator: AeronetEvaluator = AeronetEvaluator(IdempotentDict())
-    root: ast.AstType = json_parse(cql2_filter)
+    root: ast.AstType = json_parse(cql2_filter) # type: ignore
     querystring: str = evaluator.evaluate(root)
     query_parameters: Mapping[str, Any] = evaluator.query_parameters
     return (querystring, query_parameters)
