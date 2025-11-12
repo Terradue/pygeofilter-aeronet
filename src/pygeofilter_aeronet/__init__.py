@@ -15,6 +15,10 @@
 from .aeronet_client import Client as AeronetClient
 from .aeronet_client.api.default.search import sync as aeronet_client_search
 from .aeronet_client.api.default.get_stations import sync as get_stations
+from .evaluator import (
+    to_aeronet_api,
+    SUPPORTED_VALUES
+)
 from .utils import verbose_client
 from datetime import datetime
 from enum import (
@@ -37,7 +41,6 @@ from pystac import (
     Item,
     Link
 )
-from pygeofilter_aeronet.evaluator import to_aeronet_api
 from pygeofilter_duckdb import to_sql_where
 from pygeofilter.util import IdempotentDict
 from shapely.geometry import (
@@ -54,6 +57,7 @@ from typing import (
     Any,
     List,
     Mapping,
+    Optional,
     Tuple
 )
 
@@ -156,13 +160,19 @@ def get_aeronet_stations(
 
 def query_stations_from_parquet(
     file_path: str,
-    cql2_filter: str | Mapping[str, Any]
+    cql2_filter: str | Mapping[str, Any] | None = None
 ) -> Tuple[str, List[Item]]:
-    sql_where = to_sql_where(
-        root=json_parse(cql2_filter), # type: ignore
-        field_mapping=IdempotentDict() # type: ignore
-    )
-    sql_query = f"SELECT * FROM '{file_path}' WHERE {sql_where}"
+    sql_query = f"SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) as geometry FROM '{file_path}'"
+
+    if cql2_filter:
+        sql_where = to_sql_where(
+            root=json_parse(cql2_filter), # type: ignore
+            field_mapping=IdempotentDict() # type: ignore
+        )
+        sql_query += f" '{file_path}' WHERE {sql_where}"
+
+    logger.debug(f"Executing query: {sql_query}...")
+
     results_set = duckdb.query(sql_query)
     results_table = results_set.fetch_arrow_table()
 
@@ -173,6 +183,28 @@ def query_stations_from_parquet(
 
     return (sql_query, items)
 
+def _read_aeronet_site_list() -> List[str]:
+    """
+    Example of AERONET site list file content:
+
+    AERONET_Database_Site_List,Num=2,Date_Generated=06:11:2025
+    Site_Name,Longitude(decimal_degrees),Latitude(decimal_degrees),Elevation(meters)
+    Cuiaba,-56.070214,-15.555244,234.000000
+    Alta_Floresta,-56.104453,-9.871339,277.000000
+    Jamari,-63.068552,-9.199070,129.000000
+    Tucson,-110.953003,32.233002,779.000000
+    GSFC,-76.839833,38.992500,87.000000
+    Kolfield,-74.476387,39.802223,50.000000
+    """
+
+    site_list: List[str] = []
+    
+    _, items = query_stations_from_parquet('https://github.com/Terradue/pygeofilter-aeronet/raw/refs/heads/stations-update/stations.parquet')
+    for item in items:
+        site_list.append(item.properties['aeronet:site_name'])
+    return site_list
+
+SUPPORTED_VALUES['site'] = _read_aeronet_site_list()
 
 def aeronet_search(
     cql2_filter: str | Mapping[str, Any],

@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
   "pygeofilter>=0.3.1",
-  "pygeofilter-duckdb @ git+https://github.com/Terradue/pygeofilter-duckdb.git",
+  "pygeofilter-duckdb",
   "ipykernel",
   "shapely",
   "nose2",

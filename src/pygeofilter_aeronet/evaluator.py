@@ -17,10 +17,6 @@ from datetime import (
     date,
     datetime
 )
-from pandas import (
-    DataFrame,
-    read_csv
-)
 from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
@@ -37,29 +33,6 @@ from typing import (
 import json
 import numbers
 import shapely
-import os
-
-def read_aeronet_site_list(filepath: str) -> Sequence[str]:
-    """
-    Example of AERONET site list file content:
-
-    AERONET_Database_Site_List,Num=2,Date_Generated=06:11:2025
-    Site_Name,Longitude(decimal_degrees),Latitude(decimal_degrees),Elevation(meters)
-    Cuiaba,-56.070214,-15.555244,234.000000
-    Alta_Floresta,-56.104453,-9.871339,277.000000
-    Jamari,-63.068552,-9.199070,129.000000
-    Tucson,-110.953003,32.233002,779.000000
-    GSFC,-76.839833,38.992500,87.000000
-    Kolfield,-74.476387,39.802223,50.000000
-    """
-
-    site_list = []
-    with open(filepath) as file:
-        data_frame: DataFrame = read_csv(file, skiprows=1)
-        for _, row in data_frame.iterrows():
-            site_list.append(row["Site_Name"])
-
-    return site_list
 
 
 AERONET_DATA_TYPES = [
@@ -80,14 +53,10 @@ TRUE_VALUE_LIST = [
     "lunar_merge",
 ]  # values that need <parameter>=1
 
-AERONET_SITE_LIST = read_aeronet_site_list(
-    os.path.join(os.path.dirname(__file__), "data", "aeronet_locations_v3.txt")
-)
-
 SUPPORTED_VALUES = {
     "format": ["csv", "html"],
     "data_type": AERONET_DATA_TYPES,
-    "site": AERONET_SITE_LIST,
+    "site": [],
     "data_format": ["all-points", "daily-average"],
 }
 
