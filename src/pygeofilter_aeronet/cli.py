@@ -287,7 +287,7 @@ def search(
     default=False,
     help="Traces the HTTP protocol."
 )
-def dump_locations(
+def dump_stations(
     url: str,
     output_file: Path,
     verbose: bool
@@ -428,5 +428,5 @@ def query(
         case _:
             logger.error(f"It's not you, it's us: output format {format} not supported")
 
-for command in [dump_locations, query, search]:
+for command in [dump_stations, query, search]:
     command.callback = _track(command.callback)
