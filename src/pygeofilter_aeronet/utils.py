@@ -29,8 +29,7 @@ from pygeofilter.parsers.cql2_json import parse as json_parse
 from pystac.item import Item
 from typing import (
     Any,
-    Mapping,
-    Optional
+    Mapping
 )
 
 import json
@@ -44,7 +43,8 @@ def _support_datetime_serialization(obj):
 
 def json_dump(
     obj: Any,
-    pretty_print: bool = False):
+    pretty_print: bool = False
+):
     json.dump(
         obj,
         sys.stdout,
