@@ -42,6 +42,7 @@ from pystac import (
     Link
 )
 from pygeofilter_duckdb import to_sql_where
+from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
 from shapely.geometry import (
     Point,
@@ -67,6 +68,7 @@ import uuid
 
 
 AERONET_API_BASE_URL = "https://aeronet.gsfc.nasa.gov"
+DEFAULT_STATIONS_PARQUET_URL = "https://github.com/Terradue/pygeofilter-aeronet/raw/refs/heads/stations-update/stations.parquet"
 
 
 duckdb.install_extension("spatial")
@@ -169,9 +171,7 @@ def query_stations_from_parquet(
             root=json_parse(cql2_filter), # type: ignore
             field_mapping=IdempotentDict() # type: ignore
         )
-        sql_query += f" '{file_path}' WHERE {sql_where}"
-
-    logger.debug(f"Executing query: {sql_query}...")
+        sql_query += f" WHERE {sql_where}"
 
     results_set = duckdb.query(sql_query)
     results_table = results_set.fetch_arrow_table()
@@ -199,7 +199,7 @@ def _read_aeronet_site_list() -> List[str]:
 
     site_list: List[str] = []
     
-    _, items = query_stations_from_parquet('https://github.com/Terradue/pygeofilter-aeronet/raw/refs/heads/stations-update/stations.parquet')
+    _, items = query_stations_from_parquet(DEFAULT_STATIONS_PARQUET_URL)
     for item in items:
         site_list.append(item.properties['aeronet:site_name'])
     return site_list

@@ -14,6 +14,7 @@
 
 from . import (
     AERONET_API_BASE_URL,
+    DEFAULT_STATIONS_PARQUET_URL,
     FilterLang,
     aeronet_search,
     dump_items,
@@ -198,7 +199,8 @@ def dump_stations(
 @click.argument(
     "file_path",
     type=click.STRING,
-    required=True
+    required=True,
+    default=DEFAULT_STATIONS_PARQUET_URL
 )
 @click.option(
     "--filter",
