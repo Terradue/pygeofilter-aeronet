@@ -127,9 +127,8 @@ class AeronetEvaluator(Evaluator):
         self.query_parameters['month'] = date.month
         self.query_parameters['day'] = date.day
         self.query_parameters['hour'] = date.hour
-        self.query_parameters['minute'] = date.minute
 
-        return f"year={date.year}&month={date.month}&day={date.day}&hour={date.hour}&minute={date.minute}"
+        return f"year={date.year}&month={date.month}&day={date.day}&hour={date.hour}"
 
     @handle(ast.TimeBefore)
     def timeBefore(self, node, lhs, rhs):
@@ -139,9 +138,8 @@ class AeronetEvaluator(Evaluator):
         self.query_parameters['month2'] = date.month
         self.query_parameters['day2'] = date.day
         self.query_parameters['hour2'] = date.hour
-        self.query_parameters['minute2'] = date.minute
 
-        return f"year2={date.year}&month2={date.month}&day2={date.day}&hour2={date.hour}&minute2={date.minute}"
+        return f"year2={date.year}&month2={date.month}&day2={date.day}&hour2={date.hour}"
 
     @handle(values.Geometry)
     def geometry(self, node: values.Geometry):

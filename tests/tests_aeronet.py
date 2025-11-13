@@ -139,7 +139,7 @@ class TestQueryAttributes(unittest.TestCase):
             ],
         }
 
-        expected = "year=2023&month=1&day=1&hour=0&minute=0&year2=2023&month2=1&day2=31&hour2=23&minute2=59"
+        expected = "year=2023&month=1&day=1&hour=0&year2=2023&month2=1&day2=31&hour2=23&minute2=59"
         current, _ = to_aeronet_api(cql2_filter)
 
         self.assertEqual(
@@ -171,7 +171,7 @@ class TestQueryAttributes(unittest.TestCase):
             ],
         }
 
-        expected = "site=Cart_Site&AOD10=1&if_no_html=1&year=2023&month=2&day=1&hour=0&minute=0&year2=2023&month2=2&day2=28&hour2=23&minute2=59"
+        expected = "site=Cart_Site&AOD10=1&if_no_html=1&year=2023&month=2&day=1&hour=0&minute=0&year2=2023&month2=2&day2=28&hour2=23"
         current, _ = to_aeronet_api(cql2_filter)
 
         self.assertEqual(
