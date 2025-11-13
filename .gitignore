@@ -1,7 +1,6 @@
 output.geoparquet
 output.csv
 locations.geoparquet
-stations.geoparquet
 locations.parquet
 docs/diagrams/out
 
