@@ -88,9 +88,15 @@ extra_javascript:
 
 nav:
   - ./index.ipynb
-  - ./cli.md
+  - Samples:
+    - ./samples/level_10.ipynb
+    - ./samples/level_15.ipynb
+    - ./samples/level_20_aod.ipynb
+    - ./samples/level_20_sda.ipynb
+    - ./samples/geo_search.ipynb
   - Use Cases:
     - ./use_cases/matchup.ipynb
+  - ./cli.md
   - Design:
     - AERONET OpenAPI: ./aeronet_openapi.html
     - ./design.md

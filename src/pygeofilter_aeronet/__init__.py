@@ -219,7 +219,7 @@ def aeronet_search(
     url: str = AERONET_API_BASE_URL,
     verbose: bool = False
 ) -> Item:
-    _, query_parameters = to_aeronet_api(cql2_filter)
+    filter, query_parameters = to_aeronet_api(cql2_filter)
 
     with AeronetClient(base_url=url) as aeronet_client:
         if verbose:
