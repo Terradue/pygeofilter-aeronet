@@ -1,5 +1,5 @@
 *.csv
-*.parquet
+
 docs/diagrams/out
 
 .vscode
