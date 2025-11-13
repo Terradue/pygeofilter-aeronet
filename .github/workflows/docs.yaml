@@ -24,7 +24,7 @@ on:
       - 'README.md'
       - 'docs/**'
       - 'mkdocs.yaml'
-      - .github/**
+      - .github/docs.yaml
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
-      - run: pip install mkdocs-material mkdocs-mermaid2-plugin jupytext ipykernel bash_kernel mkdocs-jupyter legacy-cgi pdocs mkdocs-build-plantuml-plugin folium
+      - run: pip install mkdocs-material mkdocs-mermaid2-plugin jupytext ipykernel bash_kernel mkdocs-jupyter legacy-cgi pdocs mkdocs-build-plantuml-plugin folium "numpy<2.0.0" 
       - run: pip install .
-      # - run: pdocs as_markdown --output_dir ./docs/api/latest --exclude_source --overwrite pygeofilter_aeronet
+      - run: pdocs as_markdown --output_dir ./docs/api/latest --exclude_source --overwrite pygeofilter_aeronet
       - run: mkdocs gh-deploy --force

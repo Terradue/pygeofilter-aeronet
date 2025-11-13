@@ -1,5 +1,6 @@
 *.csv
-
+docs/*.parquet
+docs/use_cases/*.parquet
 docs/diagrams/out
 
 .vscode

@@ -54,7 +54,7 @@ tasks:
   install_mkdocs:
     internal: true
     cmds:
-    - pip install mkdocs-material mkdocs-mermaid2-plugin mkdocs-jupyter mkdocs-build-plantuml-plugin
+    - pip install mkdocs-material mkdocs-mermaid2-plugin jupytext ipykernel bash_kernel mkdocs-jupyter legacy-cgi pdocs mkdocs-build-plantuml-plugin folium "numpy<2.0.0" 
 
   serve-docs:
     deps:

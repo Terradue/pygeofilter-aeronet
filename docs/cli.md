@@ -1,5 +1,13 @@
 # Command Line Interface
 
+## Installation
+
+```
+pip install pygeofilter-aeronet
+```
+
+## Usage
+
 `pygeofilter-aeronet` can be used as a Command Line Interface (CLI).
 
 ```
@@ -16,7 +24,7 @@ Commands:
   search
 ```
 
-## Dump AERONET Stations
+### Dump AERONET Stations
 
 ```
 $ aeronet-client dump-stations --help
@@ -49,7 +57,7 @@ dump-stations \
 2025-11-12 12:51:03.107 | INFO     | pygeofilter_aeronet.cli:wrapper:76 - Finished at: 2025-11-12T12:51:03.107
 ```
 
-## Query the AERONET Stations
+### Query the AERONET Stations
 
 ```
 $ aeronet-client query-stations --help
@@ -550,7 +558,7 @@ query-stations \
 2025-11-12 17:06:39.427 | INFO     | pygeofilter_aeronet.cli:wrapper:77 - Finished at: 2025-11-12T17:06:39.427
 ```
 
-## Search
+### Search
 
 ```
 $ aeronet-client search --help
@@ -630,4 +638,25 @@ search \
 2025-11-12 12:57:23.126 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:66 - ------------------------------------------------------------------------
 2025-11-12 12:57:23.126 | INFO     | pygeofilter_aeronet.cli:wrapper:75 - Total time: 1.0294 seconds
 2025-11-12 12:57:23.126 | INFO     | pygeofilter_aeronet.cli:wrapper:76 - Finished at: 2025-11-12T12:57:23.126
+```
+
+#### Dry Run search
+
+It may happens users just want to browse data on screen:
+
+```
+$ aeronet-client \
+search \
+--dry-run \
+--filter-lang cql2-json \
+--filter '{"op":"and","args":[{"op":"eq","args":[{"property":"site"},"Cart_Site"]},{"op":"eq","args":[{"property":"data_type"},"AOD20"]},{"op":"eq","args":[{"property":"format"},"csv"]},{"op":"eq","args":[{"property":"data_format"},"daily-average"]},{"op":"t_after","args":[{"property":"time"},{"timestamp":"2000-06-01T00:00:00Z"}]},{"op":"t_before","args":[{"property":"time"},{"timestamp":"2000-06-14T23:59:59Z"}]}]}'
+
+2025-11-13 10:37:54.650 | INFO     | pygeofilter_aeronet.cli:wrapper:61 - Started at: 2025-11-13T10:37:54.650
+2025-11-13 10:37:54.650 | WARNING  | pygeofilter_aeronet.cli:search:148 - DRY RUN: True
+2025-11-13 10:37:54.678 | INFO     | pygeofilter_aeronet:dry_run_aeronet_search:214 - You can browse data on: https://aeronet.gsfc.nasa.gov/cgi-bin/print_web_data_v3?site=Cart_Site&AOD20=1&if_no_html=1&AVG=20&year=2000&month=6&day=1&hour=0&year2=2000&month2=6&day2=14&hour2=23
+2025-11-13 10:37:54.678 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:66 - ------------------------------------------------------------------------
+2025-11-13 10:37:54.678 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:67 - SUCCESS
+2025-11-13 10:37:54.678 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:68 - ------------------------------------------------------------------------
+2025-11-13 10:37:54.678 | INFO     | pygeofilter_aeronet.cli:wrapper:77 - Total time: 0.0273 seconds
+2025-11-13 10:37:54.678 | INFO     | pygeofilter_aeronet.cli:wrapper:78 - Finished at: 2025-11-13T10:37:54.678
 ```

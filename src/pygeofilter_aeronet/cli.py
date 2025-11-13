@@ -17,6 +17,7 @@ from . import (
     DEFAULT_STATIONS_PARQUET_URL,
     FilterLang,
     aeronet_search,
+    dry_run_aeronet_search,
     dump_items,
     get_aeronet_stations,
     query_stations_from_parquet
@@ -125,6 +126,7 @@ def main():
 @click.option(
     "--output-dir",
     type=click.Path(writable=True, file_okay=False, dir_okay=True, path_type=Path),
+    default=Path('.'),
     required=True,
     help="Output file path",
 )
@@ -143,12 +145,20 @@ def search(
     output_dir: Path,
     verbose: bool
 ):
+    logger.warning(f"DRY RUN: {dry_run}")
+
     cql2_filter: str | Mapping[str, Mapping] = _parse_filter(filter=filter, filter_lang=filter_lang)
+
+    if dry_run:
+        dry_run_aeronet_search(
+            url=url,
+            cql2_filter=cql2_filter
+        )
+        return
 
     current_item: Item | None = aeronet_search(
         url=url,
         cql2_filter=cql2_filter,
-        dry_run=dry_run,
         output_dir=output_dir,
         verbose=verbose
     )
