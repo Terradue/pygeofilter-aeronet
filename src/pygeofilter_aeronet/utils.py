@@ -104,6 +104,9 @@ def _log_response(func):
 
         log('')
 
+        if response.content:
+            log(_decode(response.content))
+
         if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
             raise RuntimeError(f"A server error occurred when invoking {kwargs['method'].upper()} {kwargs['url']}, read the logs for details")
         return response
