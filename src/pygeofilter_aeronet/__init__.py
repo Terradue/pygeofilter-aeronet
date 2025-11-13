@@ -206,18 +206,20 @@ def _read_aeronet_site_list() -> List[str]:
 
 SUPPORTED_VALUES['site'] = _read_aeronet_site_list()
 
+def dry_run_aeronet_search(
+    cql2_filter: str | Mapping[str, Any],
+    url: str = AERONET_API_BASE_URL
+):
+    filter, _ = to_aeronet_api(cql2_filter)
+    logger.info(f"You can browse data on: {url}/cgi-bin/print_web_data_v3?{filter}")
+
 def aeronet_search(
     cql2_filter: str | Mapping[str, Any],
     output_dir: Path,
     url: str = AERONET_API_BASE_URL,
-    dry_run: bool = False,
     verbose: bool = False
-) -> Item | None:
-    filter, query_parameters = to_aeronet_api(cql2_filter)
-
-    if dry_run:
-        logger.info(f"You can browse data on: {url}/cgi-bin/print_web_data_v3?{filter}")
-        return None
+) -> Item:
+    _, query_parameters = to_aeronet_api(cql2_filter)
 
     with AeronetClient(base_url=url) as aeronet_client:
         if verbose:

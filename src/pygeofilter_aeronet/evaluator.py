@@ -17,6 +17,7 @@ from datetime import (
     date,
     datetime
 )
+from dateutil import parser as date_parser
 from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
@@ -26,7 +27,6 @@ from typing import (
     Mapping,
     MutableMapping,
     Optional,
-    Sequence,
     Tuple
 )
 
@@ -121,7 +121,7 @@ class AeronetEvaluator(Evaluator):
 
     @handle(ast.TimeAfter)
     def timeAfter(self, node, lhs, rhs):
-        date = datetime.strptime(str(rhs), "%Y-%m-%dT%H:%M:%SZ")
+        date = date_parser.parse(str(rhs))
 
         self.query_parameters['year'] = date.year
         self.query_parameters['month'] = date.month
@@ -132,7 +132,7 @@ class AeronetEvaluator(Evaluator):
 
     @handle(ast.TimeBefore)
     def timeBefore(self, node, lhs, rhs):
-        date = datetime.strptime(str(rhs), "%Y-%m-%dT%H:%M:%SZ")
+        date = date_parser.parse(str(rhs))
 
         self.query_parameters['year2'] = date.year
         self.query_parameters['month2'] = date.month
