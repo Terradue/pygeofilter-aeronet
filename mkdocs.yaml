@@ -92,6 +92,6 @@ nav:
   - Design:
     - AERONET OpenAPI: ./aeronet_openapi.html
     - design.md
-  - API doc: api/latest/pygeofilter-aeronet/index.md
-
+  - API doc: api/latest/pygeofilter_aeronet
+  
 copyright: <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a>
