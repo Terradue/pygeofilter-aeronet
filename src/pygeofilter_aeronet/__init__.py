@@ -33,6 +33,7 @@ from io import StringIO
 from loguru import logger
 from pandas import (
     DataFrame,
+    to_datetime,
     read_csv
 )
 from pathlib import Path
@@ -58,7 +59,6 @@ from typing import (
     Any,
     List,
     Mapping,
-    Optional,
     Tuple
 )
 
@@ -245,6 +245,10 @@ def aeronet_search(
         ),
     )
     gdf.set_crs("EPSG:4326", inplace=True)
+    gdf["datetime"] = to_datetime(
+        data["Date(dd:mm:yyyy)"] + " " + data["Time(hh:mm:ss)"],
+        format="%d:%m:%Y %H:%M:%S"
+    )
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
