@@ -1,0 +1,50 @@
+@startuml
+title Aeronet APIs
+
+package pygeofilter.backends.evaluator {
+    class Evaluator
+}
+
+class AeronetEvaluator {
+    + to_aeronet_api(cql2_filter: str | Mapping[str, Any]) -> Tuple[str, Mapping[str, Any]]
+}
+
+AeronetEvaluator -u-|> Evaluator
+
+enum FilterLang {
+    CQL2_JSON
+    CQL2_TEXT
+}
+
+class PygeofilterAeronet as "pygeofilter_aeronet" {
+    + dump_items(items: List[Item], output_file: Path)
+    + get_aeronet_stations(url: str = AERONET_API_BASE_URL, verbose: bool = False) -> List[Item]
+    + query_stations_from_parquet(file_path: str, cql2_filter: str | Mapping[str, Any] | None = None) -> Tuple[str, List[Item]]
+    + aeronet_search(cql2_filter: str | Mapping[str, Any], output_dir: Path, url: str = AERONET_API_BASE_URL, dry_run: bool = False, verbose: bool = False) -> Item | None
+}
+
+enum QueryOutputFormat {
+    JSONL
+    STAC
+}
+
+class Cli as "cli" {
+    + search(url: str, filter: str, filter_lang: FilterLang, dry_run: bool, output_dir: Path, verbose: bool)
+    + dump_stations(url: str, output_file: Path, verbose: bool)
+    + query_stations(file_path: str, filter: str, filter_lang: FilterLang, format: QueryOutputFormat)
+}
+
+class Utils as "utils" {
+    + json_dump(obj: Any, pretty_print: bool = False)
+    + verbose_client(http_client: Client)
+}
+
+PygeofilterAeronet -u-> FilterLang
+PygeofilterAeronet -u-> AeronetEvaluator
+PygeofilterAeronet -> Utils
+Cli -u-> FilterLang
+Cli -u-> QueryOutputFormat
+Cli -u-> PygeofilterAeronet
+Cli -> Utils
+
+@enduml
