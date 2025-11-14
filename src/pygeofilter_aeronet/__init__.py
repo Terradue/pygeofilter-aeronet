@@ -33,6 +33,7 @@ from io import StringIO
 from loguru import logger
 from pandas import (
     DataFrame,
+    to_datetime,
     read_csv
 )
 from pathlib import Path
@@ -219,7 +220,7 @@ def aeronet_search(
     url: str = AERONET_API_BASE_URL,
     verbose: bool = False
 ) -> Item:
-    _, query_parameters = to_aeronet_api(cql2_filter)
+    filter, query_parameters = to_aeronet_api(cql2_filter)
 
     with AeronetClient(base_url=url) as aeronet_client:
         if verbose:
@@ -245,6 +246,26 @@ def aeronet_search(
         ),
     )
     gdf.set_crs("EPSG:4326", inplace=True)
+
+    date_col = "Date(dd:mm:yyyy)"
+    time_col = "Time(hh:mm:ss)"
+
+    # pick first matching date column
+    date_col: Optional[str] = next((c for c in ["Date(dd:mm:yyyy)", "Date_(dd:mm:yyyy)"] if c in gdf.columns), None)
+    time_col: Optional[str] = next((c for c in ["Time(hh:mm:ss)", "Time_(hh:mm:ss)"] if c in gdf.columns), None)
+
+    if date_col in data.columns:
+        if time_col in data.columns:
+            gdf["datetime"] = to_datetime(
+                data[date_col] + " " + data[time_col],
+                format="%d:%m:%Y %H:%M:%S"
+            )
+        else:
+            gdf["datetime"] = to_datetime(
+                data[date_col] + " 00:00:00",
+                format="%d:%m:%Y %H:%M:%S"
+            )
+    
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
