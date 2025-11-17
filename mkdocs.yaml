@@ -97,6 +97,7 @@ nav:
   - Use Cases:
     - ./use_cases/stations.ipynb
     - ./use_cases/matchup.ipynb
+    - ./use_cases/stations_matchup.ipynb
   - ./cli.md
   - Design:
     - AERONET OpenAPI: ./aeronet_openapi.html
