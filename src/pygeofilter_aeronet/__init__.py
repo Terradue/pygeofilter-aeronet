@@ -240,41 +240,11 @@ def aeronet_search(
 
     id = uuid.uuid4()
 
-    def _table_asset(
-        asset: Asset,
-        data: DataFrame
-    ) -> Asset:
-        ext = TableExtension.ext(asset, add_if_missing=False)
-        ext.row_count = data.size
-
-        columns: List[Column] = []
-        for col_name, dtype in data.dtypes.items():
-            columns.append(
-                Column(
-                    properties={
-                        'name': col_name,
-                        'col_type': str(dtype)
-                    }
-                )
-            )
-        ext.columns = columns
-
-        return asset
-
     # Build the CSV
 
     csv_output_file = Path(output_dir, f"{id}.csv")
     data.to_csv(csv_output_file, index=False)
     logger.success(f"Data saved to to CSV file: {csv_output_file.absolute()}")
-
-    csv_asset = _table_asset(
-        asset=Asset(
-            href=str(csv_output_file),
-            media_type='text/csv',
-            description='Search result - CVS Format'
-        ),
-        data=data
-    )
 
     # Build the Parquet
 
@@ -309,30 +279,52 @@ def aeronet_search(
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
-    # compute the parquet table extension
-
-    geoparquet_asset = _table_asset(
-        asset=Asset(
-            href=str(parquet_output_file),
-            media_type='application/vnd.apache.parquet',
-            description='Search result - GeoParquet Format'
-        ),
-        data=gdf
-    )
+    unique_points: GeoSeries = gdf.geometry
+    unique_points.drop_duplicates()
+    multipoint = MultiPoint(points=unique_points) # type: ignore TODO
 
     # build the response Item
 
-    dataframe: GeoDataFrame = geopandas.read_parquet(parquet_output_file)
-    unique_points: GeoSeries = dataframe.geometry
-    unique_points.drop_duplicates()
+    def _table_asset(
+        asset: Asset,
+        data: DataFrame
+    ) -> Asset:
+        ext = TableExtension.ext(asset, add_if_missing=False)
+        ext.row_count = data.size
 
-    multipoint = MultiPoint(points=unique_points) # type: ignore TODO
+        columns: List[Column] = []
+        for col_name, dtype in data.dtypes.items():
+            columns.append(
+                Column(
+                    properties={
+                        'name': col_name,
+                        'col_type': str(dtype)
+                    }
+                )
+            )
+        ext.columns = columns
+
+        return asset
 
     current_item: Item = Item(
         id=f"urn:uuid:{id}",
         assets={
-            'csv': csv_asset,
-            'geoparquet': geoparquet_asset
+            'csv': _table_asset(
+                asset=Asset(
+                    href=str(csv_output_file),
+                    media_type='text/csv',
+                    description='Search result - CVS Format'
+                ),
+                data=data
+            ),
+            'geoparquet': _table_asset(
+                asset=Asset(
+                    href=str(parquet_output_file),
+                    media_type='application/vnd.apache.parquet',
+                    description='Search result - GeoParquet Format'
+                ),
+                data=gdf
+            )
         },
         bbox=list(multipoint.envelope.bounds),
         datetime=datetime.now(),
