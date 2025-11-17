@@ -37,7 +37,6 @@ from pandas import (
     read_csv
 )
 from pathlib import Path
-from pyarrow.parquet import ParquetFile
 from pystac import (
     Asset,
     Item,
