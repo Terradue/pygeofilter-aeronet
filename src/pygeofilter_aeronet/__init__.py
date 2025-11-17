@@ -37,10 +37,15 @@ from pandas import (
     read_csv
 )
 from pathlib import Path
+from pyarrow.parquet import ParquetFile
 from pystac import (
     Asset,
     Item,
     Link
+)
+from pystac.extensions.table import (
+    TableExtension,
+    Column
 )
 from pygeofilter_duckdb import to_sql_where
 from pygeofilter.parsers.cql2_json import parse as json_parse
@@ -232,11 +237,47 @@ def aeronet_search(
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # id will be shared to link STAC Item, CSV Asset and Parquet Asset
+
     id = uuid.uuid4()
+
+    def _table_asset(
+        asset: Asset,
+        data: DataFrame
+    ) -> Asset:
+        ext = TableExtension.ext(asset, add_if_missing=False)
+        ext.row_count = data.size
+
+        columns: List[Column] = []
+        for col_name, dtype in data.dtypes.items():
+            columns.append(
+                Column(
+                    properties={
+                        'name': col_name,
+                        'col_type': str(dtype)
+                    }
+                )
+            )
+        ext.columns = columns
+
+        return asset
+
+    # Build the CSV
 
     csv_output_file = Path(output_dir, f"{id}.csv")
     data.to_csv(csv_output_file, index=False)
     logger.success(f"Data saved to to CSV file: {csv_output_file.absolute()}")
+
+    csv_asset = _table_asset(
+        asset=Asset(
+            href=str(csv_output_file),
+            media_type='text/csv',
+            description='Search result - CVS Format'
+        ),
+        data=data
+    )
+
+    # Build the Parquet
 
     parquet_output_file = Path(output_dir, f"{id}.parquet")
     gdf = GeoDataFrame(
@@ -269,7 +310,20 @@ def aeronet_search(
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
-    dataframe = geopandas.read_parquet(parquet_output_file)
+    # compute the parquet table extension
+
+    geoparquet_asset = _table_asset(
+        asset=Asset(
+            href=str(parquet_output_file),
+            media_type='application/vnd.apache.parquet',
+            description='Search result - GeoParquet Format'
+        ),
+        data=gdf
+    )
+
+    # build the response Item
+
+    dataframe: GeoDataFrame = geopandas.read_parquet(parquet_output_file)
     unique_points: GeoSeries = dataframe.geometry
     unique_points.drop_duplicates()
 
@@ -278,16 +332,8 @@ def aeronet_search(
     current_item: Item = Item(
         id=f"urn:uuid:{id}",
         assets={
-            'csv': Asset(
-                href=str(csv_output_file),
-                media_type='text/csv',
-                description='Search result - CVS Format'
-            ),
-            'geoparquet': Asset(
-                href=str(parquet_output_file),
-                media_type='application/vnd.apache.parquet',
-                description='Search result - GeoParquet Format'
-            )
+            'csv': csv_asset,
+            'geoparquet': geoparquet_asset
         },
         bbox=list(multipoint.envelope.bounds),
         datetime=datetime.now(),
@@ -303,5 +349,7 @@ def aeronet_search(
             target=f"{url}/cgi-bin/print_web_data_v3?{filter}"
         )
     ]
+
+    TableExtension.add_to(current_item)
 
     return current_item
