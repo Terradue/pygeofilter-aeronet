@@ -29,6 +29,7 @@ from geopandas import (
     GeoDataFrame,
     GeoSeries
 )
+from httpx import Timeout
 from io import StringIO
 from loguru import logger
 from pandas import (
@@ -104,9 +105,13 @@ def dump_items(
 
 def get_aeronet_stations(
     url: str = AERONET_API_BASE_URL,
-    verbose: bool = False
+    verbose: bool = False,
+    timeout: int | None = None
 ) -> List[Item]:
-    with AeronetClient(base_url=url) as aeronet_client:
+    with AeronetClient(
+        base_url=url,
+        timeout=Timeout(timeout)
+    ) as aeronet_client:
         if verbose:
             verbose_client(aeronet_client.get_httpx_client())
         raw_data = get_stations(client=aeronet_client)
@@ -222,11 +227,15 @@ def aeronet_search(
     cql2_filter: str | Mapping[str, Any],
     output_dir: Path,
     url: str = AERONET_API_BASE_URL,
-    verbose: bool = False
+    verbose: bool = False,
+    timeout: int | None = None
 ) -> Item:
     filter, query_parameters = to_aeronet_api(cql2_filter)
 
-    with AeronetClient(base_url=url) as aeronet_client:
+    with AeronetClient(
+        base_url=url,
+        timeout=Timeout(timeout)
+    ) as aeronet_client:
         if verbose:
             verbose_client(aeronet_client.get_httpx_client())
         raw_data = aeronet_client_search(client=aeronet_client, **query_parameters)

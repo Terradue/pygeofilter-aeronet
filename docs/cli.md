@@ -33,6 +33,7 @@ Usage: aeronet-client dump-stations [OPTIONS] URL
 Options:
   --output-file FILE  Output file path  [required]
   --verbose           Traces the HTTP protocol.
+  --timeout INTEGER   Connection timeout, in seconds  [default: 30; required]
   --help              Show this message and exit.
 ```
 
@@ -573,8 +574,10 @@ Options:
                                   parameter  [default: cql2-json]
   --dry-run                       Just print the invoking URL with the built
                                   filter and exits
-  --output-dir DIRECTORY          Output file path  [required]
+  --output-dir DIRECTORY          Output file path  [default: .; required]
   --verbose                       Traces the HTTP protocol.
+  --timeout INTEGER               Connection timeout, in seconds  [default:
+                                  30; required]
   --help                          Show this message and exit.
 ```
 
