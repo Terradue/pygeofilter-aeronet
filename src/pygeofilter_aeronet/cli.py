@@ -137,13 +137,21 @@ def main():
     default=False,
     help="Traces the HTTP protocol."
 )
+@click.option(
+    "--timeout",
+    type=click.INT,
+    required=True,
+    default=30,
+    help="Connection timeout, in seconds",
+)
 def search(
     url: str,
     filter: str,
     filter_lang: FilterLang,
     dry_run: bool,
     output_dir: Path,
-    verbose: bool
+    verbose: bool,
+    timeout: int
 ):
     logger.warning(f"DRY RUN: {dry_run}")
 
@@ -160,7 +168,8 @@ def search(
         url=url,
         cql2_filter=cql2_filter,
         output_dir=output_dir,
-        verbose=verbose
+        verbose=verbose,
+        timeout=timeout
     )
 
     if current_item:
@@ -190,14 +199,23 @@ def search(
     default=False,
     help="Traces the HTTP protocol."
 )
+@click.option(
+    "--timeout",
+    type=click.INT,
+    required=True,
+    default=30,
+    help="Connection timeout, in seconds",
+)
 def dump_stations(
     url: str,
     output_file: Path,
-    verbose: bool
+    verbose: bool,
+    timeout: int
 ):
     items: List[Item] = get_aeronet_stations(
         url=url,
-        verbose=verbose
+        verbose=verbose,
+        timeout=timeout
     )
 
     dump_items(
@@ -239,7 +257,10 @@ def query_stations(
 ):  
     cql2_filter: str | Mapping[str, Mapping] = _parse_filter(filter=filter, filter_lang=filter_lang)
 
-    sql_query, items = query_stations_from_parquet(file_path, cql2_filter)
+    sql_query, items = query_stations_from_parquet(
+        file_path=file_path,
+        cql2_filter=cql2_filter
+    )
 
     logger.info(f"Filtered data with `{sql_query}` query on {file_path} parquet file:")
 

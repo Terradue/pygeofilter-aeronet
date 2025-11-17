@@ -36,7 +36,16 @@ paths:
       operationId: get_stations
       responses:
         '200':
-          $ref: '#/components/responses/Success'
+          description:
+            $ref: './aeronet_locations_extended_v3.csvs'
+          content:
+            text/csv:
+              schema:
+                type: string
+                example: |
+                  AERONET_Database_Site_List,Date_Generated=14-11-2025
+                  New_Site_ID,Name,Latitude(decimal_degrees),Longitude(decimal_degrees),Altitude(Meters),Land_Use_type,Data_Start_date(dd-mm-yyyy),Data_End_Date(dd-mm-yyyy),Number_of_days_L1,Number_of_days_L1.5,Number_of_days_L2,Number_of_days_Moon_L1.5
+                  SAM0001BRA,Cuiaba,-15.555244,-56.070214,234.000000,Urban_and_Built-Up,16-06-1993,05-11-2002,430,307,238,0
 
   /cgi-bin/print_web_data_v3:
     get:
@@ -303,13 +312,17 @@ paths:
           - `1` - Lunar Data (Provisional).
       responses:
         '200':
-          $ref: '#/components/responses/Success'
-
-components:
-  responses:
-    Success:
-      description: Successful response
-      content:
-        text/csv:
-          schema:
-            type: string
+          description:
+            $ref: './print_web_data_v3.csvs'
+          content:
+            text/csv:
+              schema:
+                type: string
+                example: |
+                  AERONET Data Download (Version 3 Direct Sun)
+                  AERONET Version 3
+                  Version 3: AOD Level 1.0
+                  The following data are unscreened and may not have final calibration applied.
+                  Contact: Please visit https://aeronet.gsfc.nasa.gov/new_web/data_usage.html to properly cite these data and contact principal investigators at https://aeronet.gsfc.nasa.gov/new_web/site_info_v3
+                  AERONET_Site,Date(dd:mm:yyyy),Time(hh:mm:ss),Day_of_Year,AOD_1640nm,AOD_1020nm,AOD_870nm,AOD_865nm,AOD_779nm,AOD_675nm,AOD_667nm,AOD_620nm,AOD_560nm,AOD_555nm,AOD_551nm,AOD_532nm,AOD_531nm,AOD_510nm,AOD_500nm,AOD_490nm,AOD_443nm,AOD_440nm,AOD_412nm,AOD_400nm,AOD_380nm,AOD_340nm,Precipitable_Water(cm),AOD_681nm,AOD_709nm,AOD_Empty,AOD_Empty,AOD_Empty,AOD_Empty,AOD_Empty,440-870_Angstrom_Exponent,380-500_Angstrom_Exponent,440-675_Angstrom_Exponent,500-870_Angstrom_Exponent,340-440_Angstrom_Exponent,440-675_Angstrom_Exponent[Polar],N[AOD_1640nm],N[AOD_1020nm],N[AOD_870nm],N[AOD_865nm],N[AOD_779nm],N[AOD_675nm],N[AOD_667nm],N[AOD_620nm],N[AOD_560nm],N[AOD_555nm],N[AOD_551nm],N[AOD_532nm],N[AOD_531nm],N[AOD_510nm],N[AOD_500nm],N[AOD_490nm],N[AOD_443nm],N[AOD_440nm],N[AOD_412nm],N[AOD_400nm],N[AOD_380nm],N[AOD_340nm],N[Precipitable_Water(cm)],N[AOD_681nm],N[AOD_709nm],N[AOD_Empty],N[AOD_Empty],N[AOD_Empty],N[AOD_Empty],N[AOD_Empty],N[440-870_Angstrom_Exponent],N[380-500_Angstrom_Exponent],N[440-675_Angstrom_Exponent],N[500-870_Angstrom_Exponent],N[340-440_Angstrom_Exponent],N[440-675_Angstrom_Exponent[Polar]],Data_Quality_Level,AERONET_Instrument_Number,AERONET_Site_Name,Site_Latitude(Degrees),Site_Longitude(Degrees),Site_Elevation(m)
+                  Tucson,30:10:2025,12:00:00,303,0.022759,0.030613,0.032073,-999.,-999.,0.034822,-999.,-999.,-999.,-999.,-999.,-999.,-999.,-999.,0.040959,-999.,-999.,0.043857,-999.,-999.,0.051272,0.071717,0.898891,-999.,-999.,-999.,-999.,-999.,-999.,-999.,0.470054,0.818301,0.541502,0.447883,1.836690,-999.,99,99,99,0,0,99,0,0,0,0,0,0,0,0,99,0,0,99,0,0,99,99,99,0,0,0,0,0,0,0,99,99,99,99,99,0,lev10,1171,Tucson,32.233002,-110.953003,779.000000

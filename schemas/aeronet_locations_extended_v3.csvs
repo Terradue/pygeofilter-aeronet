@@ -1,0 +1,17 @@
+```
+version 1.1
+@separator ','
+@totalColumns 12
+New_Site_ID: 
+Name: 
+Latitude(decimal_degrees): regex("^-?\d+\.\d+$")
+Longitude(decimal_degrees): regex("^-?\d+\.\d+$")
+Altitude(Meters): regex("^\d+\.\d+$")
+Land_Use_type: 
+Data_Start_date(dd-mm-yyyy): regex("^\d{2}-\d{2}-\d{4}$")
+Data_End_Date(dd-mm-yyyy): regex("^\d{2}-\d{2}-\d{4}$")
+Number_of_days_L1: regex("^\d+$")
+Number_of_days_L1.5: regex("^\d+$")
+Number_of_days_L2: regex("^\d+$")
+Number_of_days_Moon_L1.5: regex("^\d+$")
+```
