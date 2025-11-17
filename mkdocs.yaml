@@ -95,6 +95,7 @@ nav:
     - ./samples/level_20_sda.ipynb
     - ./samples/geo_search.ipynb
   - Use Cases:
+    - ./use_cases/stations.ipynb
     - ./use_cases/matchup.ipynb
   - ./cli.md
   - Design:
