@@ -243,6 +243,7 @@ def aeronet_search(
     # Build the CSV
 
     csv_output_file = Path(output_dir, f"{id}.csv")
+    data = data.drop_duplicates()
     data.to_csv(csv_output_file, index=False)
     logger.success(f"Data saved to to CSV file: {csv_output_file.absolute()}")
 
@@ -276,6 +277,7 @@ def aeronet_search(
                 format="%d:%m:%Y %H:%M:%S"
             )
     
+    gdf = gdf.drop_duplicates()
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
@@ -290,7 +292,7 @@ def aeronet_search(
         data: DataFrame
     ) -> Asset:
         ext = TableExtension.ext(asset, add_if_missing=False)
-        ext.row_count = data.size
+        ext.row_count = len(data)
 
         columns: List[Column] = []
         for col_name, dtype in data.dtypes.items():
