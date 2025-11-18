@@ -124,7 +124,7 @@ def get_aeronet_stations(
 
         for _, row in data_frame.iterrows():
             def _to_date(column: str):
-                return datetime.strptime(row[column], "%d-%m-%Y")
+                return datetime.strptime(str(row[column]), "%d-%m-%Y")
 
             latitude = row['Latitude(decimal_degrees)']
             longitude = row['Longitude(decimal_degrees)']
@@ -157,12 +157,14 @@ def get_aeronet_stations(
             )
 
             aext: AeronetExtension = AeronetExtension.from_item(current_item, add_if_missing=True)
-            aext.site_name = row['Name']
-            aext.land_use_type = row['Land_Use_type']
-            aext.L10 = row['Number_of_days_L1']
-            aext.L15 = row['Number_of_days_L1.5']
-            aext.L20 = row['Number_of_days_L2']
-            aext.moon_L20 = row['Number_of_days_Moon_L1.5']
+            aext.apply(
+                site_name = str(row['Name']),
+                land_use_type = str(row['Land_Use_type']),
+                L10 = int(str(row['Number_of_days_L1'])),
+                L15 = int(str(row['Number_of_days_L1.5'])),
+                L20 = int(str(row['Number_of_days_L2'])),
+                moon_L15 = int(str(row['Number_of_days_Moon_L1.5']))
+            )
 
             items.append(current_item)
 

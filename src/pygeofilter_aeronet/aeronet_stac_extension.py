@@ -14,11 +14,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Literal, Optional
+from pystac.extensions.base import (
+    ExtensionManagementMixin,
+    PropertiesExtension
+)
+from pystac.utils import get_required
+from typing import (
+    Any,
+    Dict,
+    Literal
+)
 
 import pystac
-from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
-from pystac.utils import get_required
 
 # Constants
 AERONET_SCHEMA_URI: str = "https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json"
@@ -30,7 +37,7 @@ LAND_USE_TYPE_PROP = AERONET_PREFIX + "land_use_type"
 L10_PROP = AERONET_PREFIX + "L10"
 L15_PROP = AERONET_PREFIX + "L15"
 L20_PROP = AERONET_PREFIX + "L20"
-MOON_L20_PROP = AERONET_PREFIX + "moon_L20"
+MOON_L15_PROP = AERONET_PREFIX + "moon_L15"
 
 class AeronetExtension(
     PropertiesExtension,
@@ -45,7 +52,7 @@ class AeronetExtension(
       * aeronet:L10         -> int
       * aeronet:L15         -> int
       * aeronet:L20         -> int
-      * aeronet:moon_L20    -> int
+      * aeronet:moon_L15    -> int
     """
 
     # this name is only needed if you ever want to wire it into Item.ext
@@ -62,6 +69,14 @@ class AeronetExtension(
     @classmethod
     def get_schema_uri(cls) -> str:
         return AERONET_SCHEMA_URI
+
+    @classmethod
+    def has_extension(cls, obj: pystac.Item) -> bool:
+        # Simple "exact membership" check instead of the VERSION_REGEX logic
+        return (
+            obj.stac_extensions is not None
+            and cls.get_schema_uri() in obj.stac_extensions
+        )
 
     # ---- Main helper to attach to an Item ----
     @classmethod
@@ -87,6 +102,23 @@ class AeronetExtension(
         add_if_missing: bool = False,
     ) -> "AeronetExtension":
         return cls.ext(item, add_if_missing=add_if_missing)
+
+    # Optional helper to set everything in one call
+    def apply(
+        self,
+        site_name: str,
+        land_use_type: str,
+        L10: int,
+        L15: int,
+        L20: int,
+        moon_L15: int,
+    ) -> None:
+        self.site_name = site_name
+        self.land_use_type = land_use_type
+        self.L10 = L10
+        self.L15 = L15
+        self.L20 = L20
+        self.moon_L15 = moon_L15
 
     # ---- Required properties (getters / setters) ----
 
@@ -151,13 +183,13 @@ class AeronetExtension(
         self._set_property(L20_PROP, v, pop_if_none=False)
 
     @property
-    def moon_L20(self) -> int:
+    def moon_L15(self) -> int:
         return get_required(
-            self._get_property(MOON_L20_PROP, int),
+            self._get_property(MOON_L15_PROP, int),
             self,
-            MOON_L20_PROP,
+            MOON_L15_PROP,
         )
 
-    @moon_L20.setter
-    def moon_L20(self, v: int) -> None:
-        self._set_property(MOON_L20_PROP, v, pop_if_none=False)
+    @moon_L15.setter
+    def moon_L15(self, v: int) -> None:
+        self._set_property(MOON_L15_PROP, v, pop_if_none=False)
