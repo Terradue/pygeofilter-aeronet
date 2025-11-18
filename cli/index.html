@@ -1,0 +1,1730 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Fabrice Brito, Simone Tripodi">
+      
+      
+        <link rel="canonical" href="https://terradue.github.io/pygeofilter-aeronet/cli/">
+      
+      
+        <link rel="prev" href="../use_cases/stations_matchup/">
+      
+      
+        <link rel="next" href="../aeronet_openapi.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Command Line Interface - pygeofilter AERONET API support for CQL2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../styles/css/app.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#command-line-interface" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="pygeofilter AERONET API support for CQL2" class="md-header__button md-logo" aria-label="pygeofilter AERONET API support for CQL2" data-md-component="logo">
+      
+  <img src="../imgs/icon-eoap.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pygeofilter AERONET API support for CQL2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Command Line Interface
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Terradue/pygeofilter-aeronet" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Terradue/pygeofilter-aeronet
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="pygeofilter AERONET API support for CQL2" class="md-nav__button md-logo" aria-label="pygeofilter AERONET API support for CQL2" data-md-component="logo">
+      
+  <img src="../imgs/icon-eoap.png" alt="logo">
+
+    </a>
+    pygeofilter AERONET API support for CQL2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Terradue/pygeofilter-aeronet" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Terradue/pygeofilter-aeronet
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Samples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Samples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../samples/level_10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 1.0 data from the "Cart_Site" for AOD daily averages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../samples/level_15/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 1.5 data from all sites with available data for all AOD points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../samples/level_20_aod/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 2.0 data from the "Cart_Site" for all AOD points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../samples/level_20_sda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 2.0 data from the "Cart_Site" for all SDA points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../samples/geo_search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geographical search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use Cases
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use Cases
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_cases/stations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stations Discovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_cases/matchup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Match-Up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_cases/stations_matchup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stations Discovery + Match-Up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line Interface
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line Interface
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dump-aeronet-stations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dump AERONET Stations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-the-aeronet-stations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query the AERONET Stations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dry-run-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry Run search
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aeronet_openapi.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AERONET OpenAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AERONET Client software design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/latest/pygeofilter_aeronet" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API doc
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dump-aeronet-stations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dump AERONET Stations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-the-aeronet-stations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query the AERONET Stations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dry-run-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry Run search
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="command-line-interface">Command Line Interface</h1>
+<h2 id="installation">Installation</h2>
+<div class="highlight"><pre><span></span><code><span id="__span-0-1">pip install pygeofilter-aeronet
+</span></code></pre></div>
+<h2 id="usage">Usage</h2>
+<p><code>pygeofilter-aeronet</code> can be used as a Command Line Interface (CLI).</p>
+<div class="highlight"><pre><span></span><code><span id="__span-1-1">$ aeronet-client --help
+</span><span id="__span-1-2">
+</span><span id="__span-1-3">Usage: aeronet-client [OPTIONS] COMMAND [ARGS]...
+</span><span id="__span-1-4">
+</span><span id="__span-1-5">Options:
+</span><span id="__span-1-6">  --help  Show this message and exit.
+</span><span id="__span-1-7">
+</span><span id="__span-1-8">Commands:
+</span><span id="__span-1-9">  dump-stations
+</span><span id="__span-1-10">  query-stations
+</span><span id="__span-1-11">  search
+</span></code></pre></div>
+<h3 id="dump-aeronet-stations">Dump AERONET Stations</h3>
+<div class="highlight"><pre><span></span><code><span id="__span-2-1">$ aeronet-client dump-stations --help
+</span><span id="__span-2-2">Usage: aeronet-client dump-stations [OPTIONS] URL
+</span><span id="__span-2-3">
+</span><span id="__span-2-4">Options:
+</span><span id="__span-2-5">  --output-file FILE  Output file path  [required]
+</span><span id="__span-2-6">  --verbose           Traces the HTTP protocol.
+</span><span id="__span-2-7">  --timeout INTEGER   Connection timeout, in seconds  [default: 30; required]
+</span><span id="__span-2-8">  --help              Show this message and exit.
+</span></code></pre></div>
+<p>i.e.</p>
+<div class="highlight"><pre><span></span><code><span id="__span-3-1">$ aeronet-client \
+</span><span id="__span-3-2">dump-stations \
+</span><span id="__span-3-3">--output-file=./pygeofilter_aeronet/data/aeronet_locations_extended_v3.parquet
+</span><span id="__span-3-4">
+</span><span id="__span-3-5">2025-11-12 12:51:02.075 | INFO     | pygeofilter_aeronet.cli:wrapper:59 - Started at: 2025-11-12T12:51:02.075
+</span><span id="__span-3-6">2025-11-12 12:51:02.927 | INFO     | pygeofilter_aeronet:get_aeronet_stations:104 - Converting CSV data to STAC Items:
+</span><span id="__span-3-7">2025-11-12 12:51:03.039 | SUCCESS  | pygeofilter_aeronet:get_aeronet_stations:153 - CSV data converted to STAC Items
+</span><span id="__span-3-8">2025-11-12 12:51:03.040 | INFO     | pygeofilter_aeronet:dump_items:84 - Converting the STAC Items pyarrow Table...
+</span><span id="__span-3-9">2025-11-12 12:51:03.103 | SUCCESS  | pygeofilter_aeronet:dump_items:87 - STAC Items converted to pyarrow Table
+</span><span id="__span-3-10">2025-11-12 12:51:03.103 | INFO     | pygeofilter_aeronet:dump_items:89 - Saving the GeoParquet data to /home/stripodi/Documents/pygeofilter/pygeofilter-aeronet/pygeofilter_aeronet/data/aeronet_locations_extended_v3.parquet...
+</span><span id="__span-3-11">2025-11-12 12:51:03.106 | SUCCESS  | pygeofilter_aeronet:dump_items:92 - GeoParquet data saved to /home/stripodi/Documents/pygeofilter/pygeofilter-aeronet/pygeofilter_aeronet/data/aeronet_locations_extended_v3.parquet
+</span><span id="__span-3-12">2025-11-12 12:51:03.107 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:64 - ------------------------------------------------------------------------
+</span><span id="__span-3-13">2025-11-12 12:51:03.107 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:65 - SUCCESS
+</span><span id="__span-3-14">2025-11-12 12:51:03.107 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:66 - ------------------------------------------------------------------------
+</span><span id="__span-3-15">2025-11-12 12:51:03.107 | INFO     | pygeofilter_aeronet.cli:wrapper:75 - Total time: 1.0318 seconds
+</span><span id="__span-3-16">2025-11-12 12:51:03.107 | INFO     | pygeofilter_aeronet.cli:wrapper:76 - Finished at: 2025-11-12T12:51:03.107
+</span></code></pre></div>
+<h3 id="query-the-aeronet-stations">Query the AERONET Stations</h3>
+<div class="highlight"><pre><span></span><code><span id="__span-4-1">$ aeronet-client query-stations --help
+</span><span id="__span-4-2">Usage: aeronet-client query-stations [OPTIONS] FILE_PATH
+</span><span id="__span-4-3">
+</span><span id="__span-4-4">Options:
+</span><span id="__span-4-5">  --filter TEXT                   Filter on queryables using language
+</span><span id="__span-4-6">                                  specified in filter-lang parameter
+</span><span id="__span-4-7">                                  [required]
+</span><span id="__span-4-8">  --filter-lang [cql2-json|cql2-text]
+</span><span id="__span-4-9">                                  Filter language used within the filter
+</span><span id="__span-4-10">                                  parameter  [default: cql2-json]
+</span><span id="__span-4-11">  --format [jsonl|stac]           Output format  [default: jsonl]
+</span><span id="__span-4-12">  --help                          Show this message and exit.
+</span></code></pre></div>
+<p>i.e.</p>
+<div class="highlight"><pre><span></span><code><span id="__span-5-1">aeronet-client \
+</span><span id="__span-5-2">query-stations \
+</span><span id="__span-5-3">--filter-lang cql2-json \
+</span><span id="__span-5-4">--filter &#39;{&quot;op&quot;:&quot;and&quot;,&quot;args&quot;:[{&quot;op&quot;:&quot;s_intersects&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;geometry&quot;},{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[7.5113934084,47.5338000528],[10.4918239143,47.5338000528],[10.4918239143,49.7913749328],[7.5113934084,49.7913749328],[7.5113934084,47.5338000528]]]}]}]}&#39; \
+</span><span id="__span-5-5">--format stac
+</span><span id="__span-5-6">
+</span><span id="__span-5-7">2025-11-12 17:06:38.391 | INFO     | pygeofilter_aeronet.cli:wrapper:60 - Started at: 2025-11-12T17:06:38.391
+</span><span id="__span-5-8">2025-11-12 17:06:39.425 | INFO     | pygeofilter_aeronet.cli:query_stations:234 - Filtered data with `SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) as geometry FROM &#39;https://github.com/Terradue/pygeofilter-aeronet/raw/refs/heads/stations-update/stations.parquet&#39; WHERE ST_Intersects(&quot;geometry&quot;,ST_GeomFromHEXEWKB(&#39;0103000000010000000500000034DFB1B6AA0B1E4085B0648F53C44740509E1658D0FB244085B0648F53C44740509E1658D0FB244006A017C64BE5484034DFB1B6AA0B1E4006A017C64BE5484034DFB1B6AA0B1E4085B0648F53C44740&#39;))` query on https://github.com/Terradue/pygeofilter-aeronet/raw/refs/heads/stations-update/stations.parquet parquet file:
+</span><span id="__span-5-9">{
+</span><span id="__span-5-10">  &quot;type&quot;: &quot;FeatureCollection&quot;,
+</span><span id="__span-5-11">  &quot;features&quot;: [
+</span><span id="__span-5-12">    {
+</span><span id="__span-5-13">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-14">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-15">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-16">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-17">      ],
+</span><span id="__span-5-18">      &quot;id&quot;: &quot;ERM0435FRA&quot;,
+</span><span id="__span-5-19">      &quot;geometry&quot;: {
+</span><span id="__span-5-20">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-21">        &quot;coordinates&quot;: [
+</span><span id="__span-5-22">          7.62475,
+</span><span id="__span-5-23">          48.335139,
+</span><span id="__span-5-24">          167.0
+</span><span id="__span-5-25">        ]
+</span><span id="__span-5-26">      },
+</span><span id="__span-5-27">      &quot;bbox&quot;: [
+</span><span id="__span-5-28">        7.62475,
+</span><span id="__span-5-29">        48.335139,
+</span><span id="__span-5-30">        7.62475,
+</span><span id="__span-5-31">        48.335139
+</span><span id="__span-5-32">      ],
+</span><span id="__span-5-33">      &quot;properties&quot;: {
+</span><span id="__span-5-34">        &quot;aeronet:L10&quot;: 28,
+</span><span id="__span-5-35">        &quot;aeronet:L15&quot;: 27,
+</span><span id="__span-5-36">        &quot;aeronet:L20&quot;: 27,
+</span><span id="__span-5-37">        &quot;aeronet:land_use_type&quot;: &quot;Croplands&quot;,
+</span><span id="__span-5-38">        &quot;aeronet:moon_L15&quot;: 0,
+</span><span id="__span-5-39">        &quot;aeronet:site_name&quot;: &quot;Rossfeld&quot;,
+</span><span id="__span-5-40">        &quot;title&quot;: &quot;Rossfeld&quot;,
+</span><span id="__span-5-41">        &quot;end_datetime&quot;: &quot;2003-06-17T02:00:00.000000Z&quot;,
+</span><span id="__span-5-42">        &quot;start_datetime&quot;: &quot;2003-05-15T02:00:00.000000Z&quot;,
+</span><span id="__span-5-43">        &quot;datetime&quot;: &quot;2025-11-12T10:15:01.787419Z&quot;
+</span><span id="__span-5-44">      },
+</span><span id="__span-5-45">      &quot;links&quot;: [],
+</span><span id="__span-5-46">      &quot;assets&quot;: {
+</span><span id="__span-5-47">        &quot;source&quot;: {
+</span><span id="__span-5-48">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-49">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-50">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-51">        }
+</span><span id="__span-5-52">      }
+</span><span id="__span-5-53">    },
+</span><span id="__span-5-54">    {
+</span><span id="__span-5-55">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-56">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-57">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-58">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-59">      ],
+</span><span id="__span-5-60">      &quot;id&quot;: &quot;ERB0525DEU&quot;,
+</span><span id="__span-5-61">      &quot;geometry&quot;: {
+</span><span id="__span-5-62">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-63">        &quot;coordinates&quot;: [
+</span><span id="__span-5-64">          8.4279,
+</span><span id="__span-5-65">          49.0933,
+</span><span id="__span-5-66">          140.0
+</span><span id="__span-5-67">        ]
+</span><span id="__span-5-68">      },
+</span><span id="__span-5-69">      &quot;bbox&quot;: [
+</span><span id="__span-5-70">        8.4279,
+</span><span id="__span-5-71">        49.0933,
+</span><span id="__span-5-72">        8.4279,
+</span><span id="__span-5-73">        49.0933
+</span><span id="__span-5-74">      ],
+</span><span id="__span-5-75">      &quot;properties&quot;: {
+</span><span id="__span-5-76">        &quot;aeronet:L10&quot;: 3792,
+</span><span id="__span-5-77">        &quot;aeronet:L15&quot;: 2486,
+</span><span id="__span-5-78">        &quot;aeronet:L20&quot;: 2173,
+</span><span id="__span-5-79">        &quot;aeronet:land_use_type&quot;: &quot;Urban_and_Built-Up&quot;,
+</span><span id="__span-5-80">        &quot;aeronet:moon_L15&quot;: 357,
+</span><span id="__span-5-81">        &quot;aeronet:site_name&quot;: &quot;Karlsruhe&quot;,
+</span><span id="__span-5-82">        &quot;title&quot;: &quot;Karlsruhe&quot;,
+</span><span id="__span-5-83">        &quot;end_datetime&quot;: &quot;2025-11-12T01:00:00.000000Z&quot;,
+</span><span id="__span-5-84">        &quot;start_datetime&quot;: &quot;2005-03-21T01:00:00.000000Z&quot;,
+</span><span id="__span-5-85">        &quot;datetime&quot;: &quot;2025-11-12T10:15:01.801543Z&quot;
+</span><span id="__span-5-86">      },
+</span><span id="__span-5-87">      &quot;links&quot;: [],
+</span><span id="__span-5-88">      &quot;assets&quot;: {
+</span><span id="__span-5-89">        &quot;source&quot;: {
+</span><span id="__span-5-90">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-91">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-92">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-93">        }
+</span><span id="__span-5-94">      }
+</span><span id="__span-5-95">    },
+</span><span id="__span-5-96">    {
+</span><span id="__span-5-97">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-98">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-99">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-100">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-101">      ],
+</span><span id="__span-5-102">      &quot;id&quot;: &quot;ERM0640FRA&quot;,
+</span><span id="__span-5-103">      &quot;geometry&quot;: {
+</span><span id="__span-5-104">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-105">        &quot;coordinates&quot;: [
+</span><span id="__span-5-106">          7.5425,
+</span><span id="__span-5-107">          48.442778,
+</span><span id="__span-5-108">          161.0
+</span><span id="__span-5-109">        ]
+</span><span id="__span-5-110">      },
+</span><span id="__span-5-111">      &quot;bbox&quot;: [
+</span><span id="__span-5-112">        7.5425,
+</span><span id="__span-5-113">        48.442778,
+</span><span id="__span-5-114">        7.5425,
+</span><span id="__span-5-115">        48.442778
+</span><span id="__span-5-116">      ],
+</span><span id="__span-5-117">      &quot;properties&quot;: {
+</span><span id="__span-5-118">        &quot;aeronet:L10&quot;: 22,
+</span><span id="__span-5-119">        &quot;aeronet:L15&quot;: 15,
+</span><span id="__span-5-120">        &quot;aeronet:L20&quot;: 15,
+</span><span id="__span-5-121">        &quot;aeronet:land_use_type&quot;: &quot;Croplands&quot;,
+</span><span id="__span-5-122">        &quot;aeronet:moon_L15&quot;: 0,
+</span><span id="__span-5-123">        &quot;aeronet:site_name&quot;: &quot;OBERNAI&quot;,
+</span><span id="__span-5-124">        &quot;title&quot;: &quot;OBERNAI&quot;,
+</span><span id="__span-5-125">        &quot;end_datetime&quot;: &quot;2008-02-12T01:00:00.000000Z&quot;,
+</span><span id="__span-5-126">        &quot;start_datetime&quot;: &quot;2007-05-29T02:00:00.000000Z&quot;,
+</span><span id="__span-5-127">        &quot;datetime&quot;: &quot;2025-11-12T10:15:01.819720Z&quot;
+</span><span id="__span-5-128">      },
+</span><span id="__span-5-129">      &quot;links&quot;: [],
+</span><span id="__span-5-130">      &quot;assets&quot;: {
+</span><span id="__span-5-131">        &quot;source&quot;: {
+</span><span id="__span-5-132">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-133">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-134">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-135">        }
+</span><span id="__span-5-136">      }
+</span><span id="__span-5-137">    },
+</span><span id="__span-5-138">    {
+</span><span id="__span-5-139">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-140">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-141">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-142">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-143">      ],
+</span><span id="__span-5-144">      &quot;id&quot;: &quot;ERM0687DEU&quot;,
+</span><span id="__span-5-145">      &quot;geometry&quot;: {
+</span><span id="__span-5-146">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-147">        &quot;coordinates&quot;: [
+</span><span id="__span-5-148">          8.396867,
+</span><span id="__span-5-149">          48.54005,
+</span><span id="__span-5-150">          511.0
+</span><span id="__span-5-151">        ]
+</span><span id="__span-5-152">      },
+</span><span id="__span-5-153">      &quot;bbox&quot;: [
+</span><span id="__span-5-154">        8.396867,
+</span><span id="__span-5-155">        48.54005,
+</span><span id="__span-5-156">        8.396867,
+</span><span id="__span-5-157">        48.54005
+</span><span id="__span-5-158">      ],
+</span><span id="__span-5-159">      &quot;properties&quot;: {
+</span><span id="__span-5-160">        &quot;aeronet:L10&quot;: 36,
+</span><span id="__span-5-161">        &quot;aeronet:L15&quot;: 16,
+</span><span id="__span-5-162">        &quot;aeronet:L20&quot;: 16,
+</span><span id="__span-5-163">        &quot;aeronet:land_use_type&quot;: &quot;Evergreen_Needleleaf_Forest&quot;,
+</span><span id="__span-5-164">        &quot;aeronet:moon_L15&quot;: 0,
+</span><span id="__span-5-165">        &quot;aeronet:site_name&quot;: &quot;Black_Forest_AMF&quot;,
+</span><span id="__span-5-166">        &quot;title&quot;: &quot;Black_Forest_AMF&quot;,
+</span><span id="__span-5-167">        &quot;end_datetime&quot;: &quot;2007-12-31T01:00:00.000000Z&quot;,
+</span><span id="__span-5-168">        &quot;start_datetime&quot;: &quot;2007-09-13T02:00:00.000000Z&quot;,
+</span><span id="__span-5-169">        &quot;datetime&quot;: &quot;2025-11-12T10:15:01.827096Z&quot;
+</span><span id="__span-5-170">      },
+</span><span id="__span-5-171">      &quot;links&quot;: [],
+</span><span id="__span-5-172">      &quot;assets&quot;: {
+</span><span id="__span-5-173">        &quot;source&quot;: {
+</span><span id="__span-5-174">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-175">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-176">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-177">        }
+</span><span id="__span-5-178">      }
+</span><span id="__span-5-179">    },
+</span><span id="__span-5-180">    {
+</span><span id="__span-5-181">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-182">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-183">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-184">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-185">      ],
+</span><span id="__span-5-186">      &quot;id&quot;: &quot;ERB1290DEU&quot;,
+</span><span id="__span-5-187">      &quot;geometry&quot;: {
+</span><span id="__span-5-188">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-189">        &quot;coordinates&quot;: [
+</span><span id="__span-5-190">          8.4279,
+</span><span id="__span-5-191">          49.0933,
+</span><span id="__span-5-192">          140.0
+</span><span id="__span-5-193">        ]
+</span><span id="__span-5-194">      },
+</span><span id="__span-5-195">      &quot;bbox&quot;: [
+</span><span id="__span-5-196">        8.4279,
+</span><span id="__span-5-197">        49.0933,
+</span><span id="__span-5-198">        8.4279,
+</span><span id="__span-5-199">        49.0933
+</span><span id="__span-5-200">      ],
+</span><span id="__span-5-201">      &quot;properties&quot;: {
+</span><span id="__span-5-202">        &quot;aeronet:L10&quot;: 87,
+</span><span id="__span-5-203">        &quot;aeronet:L15&quot;: 76,
+</span><span id="__span-5-204">        &quot;aeronet:L20&quot;: 0,
+</span><span id="__span-5-205">        &quot;aeronet:land_use_type&quot;: &quot;Urban_and_Built-Up&quot;,
+</span><span id="__span-5-206">        &quot;aeronet:moon_L15&quot;: 18,
+</span><span id="__span-5-207">        &quot;aeronet:site_name&quot;: &quot;KITcube_Karlsruhe&quot;,
+</span><span id="__span-5-208">        &quot;title&quot;: &quot;KITcube_Karlsruhe&quot;,
+</span><span id="__span-5-209">        &quot;end_datetime&quot;: &quot;2015-10-05T02:00:00.000000Z&quot;,
+</span><span id="__span-5-210">        &quot;start_datetime&quot;: &quot;2015-06-03T02:00:00.000000Z&quot;,
+</span><span id="__span-5-211">        &quot;datetime&quot;: &quot;2025-11-12T10:15:01.947976Z&quot;
+</span><span id="__span-5-212">      },
+</span><span id="__span-5-213">      &quot;links&quot;: [],
+</span><span id="__span-5-214">      &quot;assets&quot;: {
+</span><span id="__span-5-215">        &quot;source&quot;: {
+</span><span id="__span-5-216">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-217">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-218">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-219">        }
+</span><span id="__span-5-220">      }
+</span><span id="__span-5-221">    },
+</span><span id="__span-5-222">    {
+</span><span id="__span-5-223">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-224">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-225">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-226">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-227">      ],
+</span><span id="__span-5-228">      &quot;id&quot;: &quot;ERM1507DEU&quot;,
+</span><span id="__span-5-229">      &quot;geometry&quot;: {
+</span><span id="__span-5-230">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-231">        &quot;coordinates&quot;: [
+</span><span id="__span-5-232">          10.314133,
+</span><span id="__span-5-233">          47.715833,
+</span><span id="__span-5-234">          718.0
+</span><span id="__span-5-235">        ]
+</span><span id="__span-5-236">      },
+</span><span id="__span-5-237">      &quot;bbox&quot;: [
+</span><span id="__span-5-238">        10.314133,
+</span><span id="__span-5-239">        47.715833,
+</span><span id="__span-5-240">        10.314133,
+</span><span id="__span-5-241">        47.715833
+</span><span id="__span-5-242">      ],
+</span><span id="__span-5-243">      &quot;properties&quot;: {
+</span><span id="__span-5-244">        &quot;aeronet:L10&quot;: 180,
+</span><span id="__span-5-245">        &quot;aeronet:L15&quot;: 142,
+</span><span id="__span-5-246">        &quot;aeronet:L20&quot;: 142,
+</span><span id="__span-5-247">        &quot;aeronet:land_use_type&quot;: &quot;Grasslands&quot;,
+</span><span id="__span-5-248">        &quot;aeronet:moon_L15&quot;: 0,
+</span><span id="__span-5-249">        &quot;aeronet:site_name&quot;: &quot;KEMPTEN_UAS&quot;,
+</span><span id="__span-5-250">        &quot;title&quot;: &quot;KEMPTEN_UAS&quot;,
+</span><span id="__span-5-251">        &quot;end_datetime&quot;: &quot;2019-07-24T02:00:00.000000Z&quot;,
+</span><span id="__span-5-252">        &quot;start_datetime&quot;: &quot;2018-08-15T02:00:00.000000Z&quot;,
+</span><span id="__span-5-253">        &quot;datetime&quot;: &quot;2025-11-12T10:15:01.982111Z&quot;
+</span><span id="__span-5-254">      },
+</span><span id="__span-5-255">      &quot;links&quot;: [],
+</span><span id="__span-5-256">      &quot;assets&quot;: {
+</span><span id="__span-5-257">        &quot;source&quot;: {
+</span><span id="__span-5-258">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-259">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-260">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-261">        }
+</span><span id="__span-5-262">      }
+</span><span id="__span-5-263">    },
+</span><span id="__span-5-264">    {
+</span><span id="__span-5-265">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-266">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-267">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-268">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-269">      ],
+</span><span id="__span-5-270">      &quot;id&quot;: &quot;ERM1622DEU&quot;,
+</span><span id="__span-5-271">      &quot;geometry&quot;: {
+</span><span id="__span-5-272">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-273">        &quot;coordinates&quot;: [
+</span><span id="__span-5-274">          7.8486,
+</span><span id="__span-5-275">          48.0011,
+</span><span id="__span-5-276">          323.5
+</span><span id="__span-5-277">        ]
+</span><span id="__span-5-278">      },
+</span><span id="__span-5-279">      &quot;bbox&quot;: [
+</span><span id="__span-5-280">        7.8486,
+</span><span id="__span-5-281">        48.0011,
+</span><span id="__span-5-282">        7.8486,
+</span><span id="__span-5-283">        48.0011
+</span><span id="__span-5-284">      ],
+</span><span id="__span-5-285">      &quot;properties&quot;: {
+</span><span id="__span-5-286">        &quot;aeronet:L10&quot;: 149,
+</span><span id="__span-5-287">        &quot;aeronet:L15&quot;: 104,
+</span><span id="__span-5-288">        &quot;aeronet:L20&quot;: 104,
+</span><span id="__span-5-289">        &quot;aeronet:land_use_type&quot;: &quot;Urban_and_Built-Up&quot;,
+</span><span id="__span-5-290">        &quot;aeronet:moon_L15&quot;: 58,
+</span><span id="__span-5-291">        &quot;aeronet:site_name&quot;: &quot;Freiburg_ALU&quot;,
+</span><span id="__span-5-292">        &quot;title&quot;: &quot;Freiburg_ALU&quot;,
+</span><span id="__span-5-293">        &quot;end_datetime&quot;: &quot;2021-06-15T02:00:00.000000Z&quot;,
+</span><span id="__span-5-294">        &quot;start_datetime&quot;: &quot;2020-10-20T02:00:00.000000Z&quot;,
+</span><span id="__span-5-295">        &quot;datetime&quot;: &quot;2025-11-12T10:15:02.000190Z&quot;
+</span><span id="__span-5-296">      },
+</span><span id="__span-5-297">      &quot;links&quot;: [],
+</span><span id="__span-5-298">      &quot;assets&quot;: {
+</span><span id="__span-5-299">        &quot;source&quot;: {
+</span><span id="__span-5-300">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-301">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-302">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-303">        }
+</span><span id="__span-5-304">      }
+</span><span id="__span-5-305">    },
+</span><span id="__span-5-306">    {
+</span><span id="__span-5-307">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-308">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-309">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-310">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-311">      ],
+</span><span id="__span-5-312">      &quot;id&quot;: &quot;ERM1638DEU&quot;,
+</span><span id="__span-5-313">      &quot;geometry&quot;: {
+</span><span id="__span-5-314">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-315">        &quot;coordinates&quot;: [
+</span><span id="__span-5-316">          8.955358,
+</span><span id="__span-5-317">          48.489074,
+</span><span id="__span-5-318">          339.0
+</span><span id="__span-5-319">        ]
+</span><span id="__span-5-320">      },
+</span><span id="__span-5-321">      &quot;bbox&quot;: [
+</span><span id="__span-5-322">        8.955358,
+</span><span id="__span-5-323">        48.489074,
+</span><span id="__span-5-324">        8.955358,
+</span><span id="__span-5-325">        48.489074
+</span><span id="__span-5-326">      ],
+</span><span id="__span-5-327">      &quot;properties&quot;: {
+</span><span id="__span-5-328">        &quot;aeronet:L10&quot;: 146,
+</span><span id="__span-5-329">        &quot;aeronet:L15&quot;: 128,
+</span><span id="__span-5-330">        &quot;aeronet:L20&quot;: 128,
+</span><span id="__span-5-331">        &quot;aeronet:land_use_type&quot;: &quot;Croplands&quot;,
+</span><span id="__span-5-332">        &quot;aeronet:moon_L15&quot;: 19,
+</span><span id="__span-5-333">        &quot;aeronet:site_name&quot;: &quot;KITcube_Rottenburg&quot;,
+</span><span id="__span-5-334">        &quot;title&quot;: &quot;KITcube_Rottenburg&quot;,
+</span><span id="__span-5-335">        &quot;end_datetime&quot;: &quot;2021-10-06T02:00:00.000000Z&quot;,
+</span><span id="__span-5-336">        &quot;start_datetime&quot;: &quot;2021-04-27T02:00:00.000000Z&quot;,
+</span><span id="__span-5-337">        &quot;datetime&quot;: &quot;2025-11-12T10:15:02.002698Z&quot;
+</span><span id="__span-5-338">      },
+</span><span id="__span-5-339">      &quot;links&quot;: [],
+</span><span id="__span-5-340">      &quot;assets&quot;: {
+</span><span id="__span-5-341">        &quot;source&quot;: {
+</span><span id="__span-5-342">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-343">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-344">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-345">        }
+</span><span id="__span-5-346">      }
+</span><span id="__span-5-347">    },
+</span><span id="__span-5-348">    {
+</span><span id="__span-5-349">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-350">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-351">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-352">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-353">      ],
+</span><span id="__span-5-354">      &quot;id&quot;: &quot;ERM1742DEU&quot;,
+</span><span id="__span-5-355">      &quot;geometry&quot;: {
+</span><span id="__span-5-356">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-357">        &quot;coordinates&quot;: [
+</span><span id="__span-5-358">          8.48647,
+</span><span id="__span-5-359">          48.05614,
+</span><span id="__span-5-360">          765.0
+</span><span id="__span-5-361">        ]
+</span><span id="__span-5-362">      },
+</span><span id="__span-5-363">      &quot;bbox&quot;: [
+</span><span id="__span-5-364">        8.48647,
+</span><span id="__span-5-365">        48.05614,
+</span><span id="__span-5-366">        8.48647,
+</span><span id="__span-5-367">        48.05614
+</span><span id="__span-5-368">      ],
+</span><span id="__span-5-369">      &quot;properties&quot;: {
+</span><span id="__span-5-370">        &quot;aeronet:L10&quot;: 67,
+</span><span id="__span-5-371">        &quot;aeronet:L15&quot;: 57,
+</span><span id="__span-5-372">        &quot;aeronet:L20&quot;: 57,
+</span><span id="__span-5-373">        &quot;aeronet:land_use_type&quot;: &quot;Croplands&quot;,
+</span><span id="__span-5-374">        &quot;aeronet:moon_L15&quot;: 14,
+</span><span id="__span-5-375">        &quot;aeronet:site_name&quot;: &quot;KITcube_VS&quot;,
+</span><span id="__span-5-376">        &quot;title&quot;: &quot;KITcube_VS&quot;,
+</span><span id="__span-5-377">        &quot;end_datetime&quot;: &quot;2023-10-10T02:00:00.000000Z&quot;,
+</span><span id="__span-5-378">        &quot;start_datetime&quot;: &quot;2023-05-30T02:00:00.000000Z&quot;,
+</span><span id="__span-5-379">        &quot;datetime&quot;: &quot;2025-11-12T10:15:02.019005Z&quot;
+</span><span id="__span-5-380">      },
+</span><span id="__span-5-381">      &quot;links&quot;: [],
+</span><span id="__span-5-382">      &quot;assets&quot;: {
+</span><span id="__span-5-383">        &quot;source&quot;: {
+</span><span id="__span-5-384">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-385">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-386">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-387">        }
+</span><span id="__span-5-388">      }
+</span><span id="__span-5-389">    },
+</span><span id="__span-5-390">    {
+</span><span id="__span-5-391">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-392">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-393">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-394">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-395">      ],
+</span><span id="__span-5-396">      &quot;id&quot;: &quot;ERB 1793DEU&quot;,
+</span><span id="__span-5-397">      &quot;geometry&quot;: {
+</span><span id="__span-5-398">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-399">        &quot;coordinates&quot;: [
+</span><span id="__span-5-400">          8.67465,
+</span><span id="__span-5-401">          49.41727,
+</span><span id="__span-5-402">          144.0
+</span><span id="__span-5-403">        ]
+</span><span id="__span-5-404">      },
+</span><span id="__span-5-405">      &quot;bbox&quot;: [
+</span><span id="__span-5-406">        8.67465,
+</span><span id="__span-5-407">        49.41727,
+</span><span id="__span-5-408">        8.67465,
+</span><span id="__span-5-409">        49.41727
+</span><span id="__span-5-410">      ],
+</span><span id="__span-5-411">      &quot;properties&quot;: {
+</span><span id="__span-5-412">        &quot;aeronet:L10&quot;: 187,
+</span><span id="__span-5-413">        &quot;aeronet:L15&quot;: 146,
+</span><span id="__span-5-414">        &quot;aeronet:L20&quot;: 146,
+</span><span id="__span-5-415">        &quot;aeronet:land_use_type&quot;: &quot;Urban_and_Built-Up&quot;,
+</span><span id="__span-5-416">        &quot;aeronet:moon_L15&quot;: 91,
+</span><span id="__span-5-417">        &quot;aeronet:site_name&quot;: &quot;IUP_Heidelberg_DE&quot;,
+</span><span id="__span-5-418">        &quot;title&quot;: &quot;IUP_Heidelberg_DE&quot;,
+</span><span id="__span-5-419">        &quot;end_datetime&quot;: &quot;2025-05-16T02:00:00.000000Z&quot;,
+</span><span id="__span-5-420">        &quot;start_datetime&quot;: &quot;2024-08-16T02:00:00.000000Z&quot;,
+</span><span id="__span-5-421">        &quot;datetime&quot;: &quot;2025-11-12T10:15:02.027017Z&quot;
+</span><span id="__span-5-422">      },
+</span><span id="__span-5-423">      &quot;links&quot;: [],
+</span><span id="__span-5-424">      &quot;assets&quot;: {
+</span><span id="__span-5-425">        &quot;source&quot;: {
+</span><span id="__span-5-426">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-427">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-428">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-429">        }
+</span><span id="__span-5-430">      }
+</span><span id="__span-5-431">    },
+</span><span id="__span-5-432">    {
+</span><span id="__span-5-433">      &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-5-434">      &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-5-435">      &quot;stac_extensions&quot;: [
+</span><span id="__span-5-436">        &quot;https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json&quot;
+</span><span id="__span-5-437">      ],
+</span><span id="__span-5-438">      &quot;id&quot;: &quot;ERM1813DEU&quot;,
+</span><span id="__span-5-439">      &quot;geometry&quot;: {
+</span><span id="__span-5-440">        &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-5-441">        &quot;coordinates&quot;: [
+</span><span id="__span-5-442">          8.10794,
+</span><span id="__span-5-443">          48.59729,
+</span><span id="__span-5-444">          199.0
+</span><span id="__span-5-445">        ]
+</span><span id="__span-5-446">      },
+</span><span id="__span-5-447">      &quot;bbox&quot;: [
+</span><span id="__span-5-448">        8.10794,
+</span><span id="__span-5-449">        48.59729,
+</span><span id="__span-5-450">        8.10794,
+</span><span id="__span-5-451">        48.59729
+</span><span id="__span-5-452">      ],
+</span><span id="__span-5-453">      &quot;properties&quot;: {
+</span><span id="__span-5-454">        &quot;aeronet:L10&quot;: -999,
+</span><span id="__span-5-455">        &quot;aeronet:L15&quot;: -999,
+</span><span id="__span-5-456">        &quot;aeronet:L20&quot;: -999,
+</span><span id="__span-5-457">        &quot;aeronet:land_use_type&quot;: &quot;Mixed_Forest&quot;,
+</span><span id="__span-5-458">        &quot;aeronet:moon_L15&quot;: -999,
+</span><span id="__span-5-459">        &quot;aeronet:site_name&quot;: &quot;KLOCX_Kappelrodeck&quot;,
+</span><span id="__span-5-460">        &quot;title&quot;: &quot;KLOCX_Kappelrodeck&quot;,
+</span><span id="__span-5-461">        &quot;end_datetime&quot;: &quot;1970-01-01T01:00:00.000000Z&quot;,
+</span><span id="__span-5-462">        &quot;start_datetime&quot;: &quot;1970-01-01T01:00:00.000000Z&quot;,
+</span><span id="__span-5-463">        &quot;datetime&quot;: &quot;2025-11-12T10:15:02.030132Z&quot;
+</span><span id="__span-5-464">      },
+</span><span id="__span-5-465">      &quot;links&quot;: [],
+</span><span id="__span-5-466">      &quot;assets&quot;: {
+</span><span id="__span-5-467">        &quot;source&quot;: {
+</span><span id="__span-5-468">          &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/aeronet_locations_extended_v3.txt&quot;,
+</span><span id="__span-5-469">          &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-5-470">          &quot;description&quot;: &quot;Data source&quot;
+</span><span id="__span-5-471">        }
+</span><span id="__span-5-472">      }
+</span><span id="__span-5-473">    }
+</span><span id="__span-5-474">  ]
+</span><span id="__span-5-475">2025-11-12 17:06:39.427 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:65 - ------------------------------------------------------------------------
+</span><span id="__span-5-476">2025-11-12 17:06:39.427 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:66 - SUCCESS
+</span><span id="__span-5-477">2025-11-12 17:06:39.427 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:67 - ------------------------------------------------------------------------
+</span><span id="__span-5-478">2025-11-12 17:06:39.427 | INFO     | pygeofilter_aeronet.cli:wrapper:76 - Total time: 1.0355 seconds
+</span><span id="__span-5-479">2025-11-12 17:06:39.427 | INFO     | pygeofilter_aeronet.cli:wrapper:77 - Finished at: 2025-11-12T17:06:39.427
+</span></code></pre></div>
+<h3 id="search">Search</h3>
+<div class="highlight"><pre><span></span><code><span id="__span-6-1">$ aeronet-client search --help
+</span><span id="__span-6-2">Usage: aeronet-client search [OPTIONS] URL
+</span><span id="__span-6-3">
+</span><span id="__span-6-4">Options:
+</span><span id="__span-6-5">  --filter TEXT                   Filter on queryables using language
+</span><span id="__span-6-6">                                  specified in filter-lang parameter
+</span><span id="__span-6-7">                                  [required]
+</span><span id="__span-6-8">  --filter-lang [cql2-json|cql2-text]
+</span><span id="__span-6-9">                                  Filter language used within the filter
+</span><span id="__span-6-10">                                  parameter  [default: cql2-json]
+</span><span id="__span-6-11">  --dry-run                       Just print the invoking URL with the built
+</span><span id="__span-6-12">                                  filter and exits
+</span><span id="__span-6-13">  --output-dir DIRECTORY          Output file path  [default: .; required]
+</span><span id="__span-6-14">  --verbose                       Traces the HTTP protocol.
+</span><span id="__span-6-15">  --timeout INTEGER               Connection timeout, in seconds  [default:
+</span><span id="__span-6-16">                                  30; required]
+</span><span id="__span-6-17">  --help                          Show this message and exit.
+</span></code></pre></div>
+<p>i.e.</p>
+<div class="highlight"><pre><span></span><code><span id="__span-7-1">$ aeronet-client \
+</span><span id="__span-7-2">search \
+</span><span id="__span-7-3">--filter-lang cql2-json \
+</span><span id="__span-7-4">--filter &#39;{&quot;op&quot;:&quot;and&quot;,&quot;args&quot;:[{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;site&quot;},&quot;Cart_Site&quot;]},{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;data_type&quot;},&quot;AOD20&quot;]},{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;format&quot;},&quot;csv&quot;]},{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;data_format&quot;},&quot;daily-average&quot;]},{&quot;op&quot;:&quot;t_after&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;time&quot;},{&quot;timestamp&quot;:&quot;2000-06-01T00:00:00Z&quot;}]},{&quot;op&quot;:&quot;t_before&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;time&quot;},{&quot;timestamp&quot;:&quot;2000-06-14T23:59:59Z&quot;}]}]}&#39; \
+</span><span id="__span-7-5"> --output-dir .
+</span><span id="__span-7-6">
+</span><span id="__span-7-7">2025-11-12 12:57:22.097 | INFO     | pygeofilter_aeronet.cli:wrapper:59 - Started at: 2025-11-12T12:57:22.097
+</span><span id="__span-7-8">2025-11-12 12:57:23.076 | SUCCESS  | pygeofilter_aeronet:aeronet_search:196 - Query on https://aeronet.gsfc.nasa.gov successfully obtained data:
+</span><span id="__span-7-9">2025-11-12 12:57:23.077 | SUCCESS  | pygeofilter_aeronet:aeronet_search:204 - Data saved to to CSV file: /home/stripodi/Documents/pygeofilter/pygeofilter-aeronet/0d0ebbb5-4c36-436b-af73-c6202008e99f.csv
+</span><span id="__span-7-10">2025-11-12 12:57:23.086 | SUCCESS  | pygeofilter_aeronet:aeronet_search:215 - Data saved to GeoParquet file: /home/stripodi/Documents/pygeofilter/pygeofilter-aeronet/0d0ebbb5-4c36-436b-af73-c6202008e99f.parquet
+</span><span id="__span-7-11">{
+</span><span id="__span-7-12">  &quot;type&quot;: &quot;Feature&quot;,
+</span><span id="__span-7-13">  &quot;stac_version&quot;: &quot;1.1.0&quot;,
+</span><span id="__span-7-14">  &quot;stac_extensions&quot;: [],
+</span><span id="__span-7-15">  &quot;id&quot;: &quot;urn:uuid:0d0ebbb5-4c36-436b-af73-c6202008e99f&quot;,
+</span><span id="__span-7-16">  &quot;geometry&quot;: {
+</span><span id="__span-7-17">    &quot;type&quot;: &quot;Point&quot;,
+</span><span id="__span-7-18">    &quot;coordinates&quot;: [
+</span><span id="__span-7-19">      -97.48639,
+</span><span id="__span-7-20">      36.60667
+</span><span id="__span-7-21">    ]
+</span><span id="__span-7-22">  },
+</span><span id="__span-7-23">  &quot;bbox&quot;: [
+</span><span id="__span-7-24">    -97.48639,
+</span><span id="__span-7-25">    36.60667,
+</span><span id="__span-7-26">    -97.48639,
+</span><span id="__span-7-27">    36.60667
+</span><span id="__span-7-28">  ],
+</span><span id="__span-7-29">  &quot;properties&quot;: {
+</span><span id="__span-7-30">    &quot;datetime&quot;: &quot;2025-11-12T12:57:23.124952Z&quot;
+</span><span id="__span-7-31">  },
+</span><span id="__span-7-32">  &quot;links&quot;: [
+</span><span id="__span-7-33">    {
+</span><span id="__span-7-34">      &quot;rel&quot;: &quot;related&quot;,
+</span><span id="__span-7-35">      &quot;href&quot;: &quot;https://aeronet.gsfc.nasa.gov/cgi-bin/print_web_data_v3?site=Cart_Site&amp;AOD20=1&amp;if_no_html=1&amp;AVG=20&amp;year=2000&amp;month=6&amp;day=1&amp;hour=0&amp;year2=2000&amp;month2=6&amp;day2=14&amp;hour2=23&quot;,
+</span><span id="__span-7-36">      &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-7-37">      &quot;title&quot;: &quot;AERONET Web Service search&quot;
+</span><span id="__span-7-38">    }
+</span><span id="__span-7-39">  ],
+</span><span id="__span-7-40">  &quot;assets&quot;: {
+</span><span id="__span-7-41">    &quot;csv&quot;: {
+</span><span id="__span-7-42">      &quot;href&quot;: &quot;0d0ebbb5-4c36-436b-af73-c6202008e99f.csv&quot;,
+</span><span id="__span-7-43">      &quot;type&quot;: &quot;text/csv&quot;,
+</span><span id="__span-7-44">      &quot;description&quot;: &quot;Search result - CVS Format&quot;
+</span><span id="__span-7-45">    },
+</span><span id="__span-7-46">    &quot;geoparquet&quot;: {
+</span><span id="__span-7-47">      &quot;href&quot;: &quot;0d0ebbb5-4c36-436b-af73-c6202008e99f.parquet&quot;,
+</span><span id="__span-7-48">      &quot;type&quot;: &quot;application/vnd.apache.parquet&quot;,
+</span><span id="__span-7-49">      &quot;description&quot;: &quot;Search result - GeoParquet Format&quot;
+</span><span id="__span-7-50">    }
+</span><span id="__span-7-51">  }
+</span><span id="__span-7-52">}
+</span><span id="__span-7-53">2025-11-12 12:57:23.126 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:64 - ------------------------------------------------------------------------
+</span><span id="__span-7-54">2025-11-12 12:57:23.126 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:65 - SUCCESS
+</span><span id="__span-7-55">2025-11-12 12:57:23.126 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:66 - ------------------------------------------------------------------------
+</span><span id="__span-7-56">2025-11-12 12:57:23.126 | INFO     | pygeofilter_aeronet.cli:wrapper:75 - Total time: 1.0294 seconds
+</span><span id="__span-7-57">2025-11-12 12:57:23.126 | INFO     | pygeofilter_aeronet.cli:wrapper:76 - Finished at: 2025-11-12T12:57:23.126
+</span></code></pre></div>
+<h4 id="dry-run-search">Dry Run search</h4>
+<p>It may happens users just want to browse data on screen:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-8-1">$ aeronet-client \
+</span><span id="__span-8-2">search \
+</span><span id="__span-8-3">--dry-run \
+</span><span id="__span-8-4">--filter-lang cql2-json \
+</span><span id="__span-8-5">--filter &#39;{&quot;op&quot;:&quot;and&quot;,&quot;args&quot;:[{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;site&quot;},&quot;Cart_Site&quot;]},{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;data_type&quot;},&quot;AOD20&quot;]},{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;format&quot;},&quot;csv&quot;]},{&quot;op&quot;:&quot;eq&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;data_format&quot;},&quot;daily-average&quot;]},{&quot;op&quot;:&quot;t_after&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;time&quot;},{&quot;timestamp&quot;:&quot;2000-06-01T00:00:00Z&quot;}]},{&quot;op&quot;:&quot;t_before&quot;,&quot;args&quot;:[{&quot;property&quot;:&quot;time&quot;},{&quot;timestamp&quot;:&quot;2000-06-14T23:59:59Z&quot;}]}]}&#39;
+</span><span id="__span-8-6">
+</span><span id="__span-8-7">2025-11-13 10:37:54.650 | INFO     | pygeofilter_aeronet.cli:wrapper:61 - Started at: 2025-11-13T10:37:54.650
+</span><span id="__span-8-8">2025-11-13 10:37:54.650 | WARNING  | pygeofilter_aeronet.cli:search:148 - DRY RUN: True
+</span><span id="__span-8-9">2025-11-13 10:37:54.678 | INFO     | pygeofilter_aeronet:dry_run_aeronet_search:214 - You can browse data on: https://aeronet.gsfc.nasa.gov/cgi-bin/print_web_data_v3?site=Cart_Site&amp;AOD20=1&amp;if_no_html=1&amp;AVG=20&amp;year=2000&amp;month=6&amp;day=1&amp;hour=0&amp;year2=2000&amp;month2=6&amp;day2=14&amp;hour2=23
+</span><span id="__span-8-10">2025-11-13 10:37:54.678 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:66 - ------------------------------------------------------------------------
+</span><span id="__span-8-11">2025-11-13 10:37:54.678 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:67 - SUCCESS
+</span><span id="__span-8-12">2025-11-13 10:37:54.678 | SUCCESS  | pygeofilter_aeronet.cli:wrapper:68 - ------------------------------------------------------------------------
+</span><span id="__span-8-13">2025-11-13 10:37:54.678 | INFO     | pygeofilter_aeronet.cli:wrapper:77 - Total time: 0.0273 seconds
+</span><span id="__span-8-14">2025-11-13 10:37:54.678 | INFO     | pygeofilter_aeronet.cli:wrapper:78 - Finished at: 2025-11-13T10:37:54.678
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

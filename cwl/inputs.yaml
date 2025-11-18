@@ -1,0 +1,94 @@
+
+search_request: 
+  #output-format: geoparquet
+  filter-lang: cql2-json
+  filter:
+    {
+    "op": "and",
+    "args": [
+        {
+            "op": "eq",
+            "args": [
+                {
+                    "property": "data_type"
+                },
+                "SDA20"
+            ]
+        },
+        {
+            "op": "eq",
+            "args": [
+                {
+                    "property": "format"
+                },
+                "csv"
+            ]
+        },
+        {
+            "op": "eq",
+            "args": [
+                {
+                    "property": "data_format"
+                },
+                "daily-average"
+            ]
+        },
+        {
+            "op": "t_after",
+            "args": [
+                {
+                    "property": "time"
+                },
+                {
+                    "timestamp": "2000-06-01T00:00:00Z"
+                }
+            ]
+        },
+        {
+            "op": "t_before",
+            "args": [
+                {
+                    "property": "time"
+                },
+                {
+                    "timestamp": "2000-06-14T23:59:59Z"
+                }
+            ]
+        },
+        {
+            "op": "s_intersects",
+            "args": [
+                {
+                    "property": "geometry"
+                },
+                {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                8.0,
+                                44.0
+                            ],
+                            [
+                                14.0,
+                                44.0
+                            ],
+                            [
+                                14.0,
+                                48.0
+                            ],
+                            [
+                                8.0,
+                                48.0
+                            ],
+                            [
+                                8.0,
+                                44.0
+                            ]
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+  }
