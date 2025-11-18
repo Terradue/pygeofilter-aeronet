@@ -15,6 +15,7 @@
 from .aeronet_client import Client as AeronetClient
 from .aeronet_client.api.default.search import sync as aeronet_client_search
 from .aeronet_client.api.default.get_stations import sync as get_stations
+from .aeronet_stac_extension import AeronetExtension
 from .evaluator import (
     to_aeronet_api,
     SUPPORTED_VALUES
@@ -133,9 +134,6 @@ def get_aeronet_stations(
 
             current_item: Item = Item(
                 id=row['New_Site_ID'],
-                stac_extensions=[
-                    'https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json'
-                ],
                 assets={
                     'source': Asset(
                         href=f"{url}/aeronet_locations_extended_v3.txt",
@@ -154,15 +152,17 @@ def get_aeronet_stations(
                 end_datetime=end_datetime,
                 geometry=mapping(Point([longitude, latitude, altitude])),
                 properties={
-                    'title': row['Name'],
-                    'aeronet:site_name': row['Name'],
-                    'aeronet:land_use_type': row['Land_Use_type'],
-                    'aeronet:L10': row['Number_of_days_L1'],
-                    'aeronet:L15': row['Number_of_days_L1.5'],
-                    'aeronet:L20': row['Number_of_days_L2'],
-                    'aeronet:moon_L20': row['Number_of_days_Moon_L1.5'],
+                    'title': row['Name']
                 }
             )
+
+            aext: AeronetExtension = AeronetExtension.from_item(current_item, add_if_missing=True)
+            aext.site_name = row['Name']
+            aext.land_use_type = row['Land_Use_type']
+            aext.L10 = row['Number_of_days_L1']
+            aext.L15 = row['Number_of_days_L1.5']
+            aext.L20 = row['Number_of_days_L2']
+            aext.moon_L20 = row['Number_of_days_Moon_L1.5']
 
             items.append(current_item)
 
