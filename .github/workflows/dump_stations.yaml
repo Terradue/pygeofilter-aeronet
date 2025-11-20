@@ -1,36 +1,52 @@
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # a github action to get the list of aeronet stations and dump it as a geoparquet file
 # the action will run daily (cron) and store the output in the artifacts
+
 name: Dump Aeronet Stations
 on: 
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 jobs:
-    dump_stations:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+  dump_stations:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-            - name: Set up Python 3.x
-              uses: actions/setup-python@v5
-              with:
-                  python-version: 3.12
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v5
+      with:
+          python-version: 3.12
 
-            - name: Install dependencies
-              run: |
-                  pip install .
+    - name: Install dependencies
+      run: |
+          pip install pygeofilter-aeronet
 
-            - name: Dump Aeronet Stations to GeoParquet
-              run: |
-                  set -x
-                  aeronet-client dump-stations --verbose --output-file=./stations.parquet
-                  # git add and commit the file
-                  git config --global user.name 'github-actions'
-                  git config --global user.email 'github-actions@github.com'
-                  # create the branch if it doesn't exist locally or remotely
-                  git checkout -B stations-update --no-rebase
-                  git pull origin stations-update || echo "Branch does not exist remotely"
-                  git add ./stations.parquet
-                  git commit -m "Update stations.parquet $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-                  git push origin stations-update
+    - name: Dump Aeronet Stations to GeoParquet
+      run: |
+          # git add and commit the file
+          set -x
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          # create the branch if it doesn't exist locally or remotely
+          # git checkout -B stations-update --no-rebase
+          git checkout stations-update
+          git pull origin stations-update || echo "Branch does not exist remotely"
+          aeronet-client dump-stations --verbose --output-file=./stations.parquet
+          git add ./stations.parquet
+          git commit -m "Update stations.parquet $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push origin stations-update
