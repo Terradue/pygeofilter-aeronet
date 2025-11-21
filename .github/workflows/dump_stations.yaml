@@ -16,7 +16,14 @@
 # the action will run daily (cron) and store the output in the artifacts
 
 name: Dump Aeronet Stations
-on: 
+on:
+  push:
+    branches:
+    - stations-update
+    paths:
+      # Only rebuild AERONEST Stations when descriptor has changed
+      - .github/dump_stations.yaml
+    
   schedule:
   - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
