@@ -23,30 +23,46 @@ on:
 jobs:
   dump_stations:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout stations-update branch
+        uses: actions/checkout@v4
+        with:
+          ref: stations-update
+          fetch-depth: 0
 
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v5
-      with:
-          python-version: 3.12
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    - name: Install dependencies
-      run: |
-          pip install pygeofilter-aeronet
+      - name: Install aeronet-client
+        run: |
+          python -m pip install --upgrade pip
+          pip install aeronet-client
 
-    - name: Dump Aeronet Stations to GeoParquet
-      run: |
-          # git add and commit the file
-          set -x
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          # create the branch if it doesn't exist locally or remotely
-          # git checkout -B stations-update --no-rebase
-          git checkout stations-update
-          git pull origin stations-update || echo "Branch does not exist remotely"
+      - name: Run aeronet-client dump
+        run: |
           aeronet-client dump-stations --verbose --output-file=./stations.parquet
-          git add ./stations.parquet
-          git commit -m "Update stations.parquet $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push origin stations-update
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Commit changes if any
+        run: |
+          # Only stage the generated file
+          git add stations.parquet || echo "No stations.parquet to add"
+
+          # Commit only if there are staged changes
+          if [ -n "$(git diff --cached --name-only)" ]; then
+            git commit -m "Update AERONET stations $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Push to stations-update
+        run: |
+          # If there's no commit, this will be a no-op
+          git push origin HEAD:stations-update
