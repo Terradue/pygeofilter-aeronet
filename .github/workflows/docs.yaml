@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python 3.x
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.12
       - run: pip install mkdocs-material mkdocs-mermaid2-plugin jupytext ipykernel bash_kernel mkdocs-jupyter legacy-cgi pdocs mkdocs-build-plantuml-plugin folium "numpy<2.0.0" 
