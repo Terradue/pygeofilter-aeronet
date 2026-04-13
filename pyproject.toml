@@ -37,7 +37,7 @@ dependencies = [
   "geopandas",
   "pyarrow",
   "httpx>=0.23.0,<0.29.0",
-  "attrs>=22.2.0",
+  "attrs>=26.1.0",
   "python-dateutil>=2.8.2",
   "pystac",
   "stac-geoparquet"
