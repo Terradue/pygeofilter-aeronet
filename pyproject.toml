@@ -38,7 +38,7 @@ dependencies = [
   "pyarrow",
   "httpx>=0.23.0,<0.29.0",
   "attrs>=22.2.0",
-  "python-dateutil>=2.8.2",
+  "python-dateutil>=2.9.0.post0",
   "pystac",
   "stac-geoparquet"
 ]
