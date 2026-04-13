@@ -33,7 +33,7 @@ dependencies = [
   "loguru",
   "requests",
   "click>=8.3.0",
-  "pandas>=2.3",
+  "pandas>=2.3.3",
   "geopandas",
   "pyarrow",
   "httpx>=0.23.0,<0.29.0",
