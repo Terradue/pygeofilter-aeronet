@@ -26,14 +26,15 @@ tasks:
       uv run \
       --with mkdocs-material \
       --with mkdocs-mermaid2-plugin \
-      --with jupytext ipykernel \
+      --with jupytext \
+      --with ipykernel \
       --with bash_kernel \
       --with mkdocs-jupyter \
       --with legacy-cgi \
       --with pdocs \
       --with mkdocs-build-plantuml-plugin \
       --with folium \
-      --with "numpy<2.0.0" \
+      --with numpy \
       mkdocs serve
 
   run-clt: 
