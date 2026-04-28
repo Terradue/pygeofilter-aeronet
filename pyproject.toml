@@ -21,27 +21,29 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
+# pygeofilter-duckdb 0.1.0 declares:
+#
+# duckdb>=0.2.0
+# duckdb<1.2.0
+#  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
+
 dependencies = [
-  "pygeofilter>=0.3.1",
-  "pygeofilter-duckdb",
-  "ipykernel",
-  "shapely",
-  "nose2",
-  "loguru",
-  "requests",
-  "click>=8.3.0",
-  "pandas>=2.3",
-  "geopandas",
-  "pyarrow",
+  "pygeofilter==0.3.3",
+  "pygeofilter-duckdb==0.1.0",
+  "shapely==2.1.2",
+  "loguru==0.7.3",
+  "click==8.3.3",
+  "pandas==2.3.3",
+  "geopandas==1.1.3",
+  "pyarrow==24.0.0",
   "httpx>=0.23.0,<0.29.0",
-  "attrs>=22.2.0",
-  "python-dateutil>=2.8.2",
-  "pystac",
-  "stac-geoparquet"
+  "attrs==26.1.0",
+  "python-dateutil==2.9.0.post0",
+  "pystac==1.14.3",
+  "stac-geoparquet==0.7.0"
 ]
 
 [tool.hatch.metadata]
@@ -117,4 +119,14 @@ test-cov = "pytest --cov=transpiler_mate"
 test-show-setup = "pytest --setup-show"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+python = [
+  "3.10",
+  "3.11",
+  "3.12",
+  "3.13",
+# pygeofilter-duckdb 0.1.0 declares:
+#
+# duckdb>=0.2.0
+# duckdb<1.2.0
+#  "3.14"
+]
