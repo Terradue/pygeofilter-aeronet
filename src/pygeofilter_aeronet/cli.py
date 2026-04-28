@@ -20,32 +20,20 @@ from . import (
     dry_run_aeronet_search,
     dump_items,
     get_aeronet_stations,
-    query_stations_from_parquet
+    query_stations_from_parquet,
 )
 from .utils import json_dump
-from .aeronet_client import Client as AeronetClient
-from .evaluator import to_aeronet_api
 from datetime import datetime
-from enum import (
-    Enum,
-    auto
-)
+from enum import Enum, auto
 from functools import wraps
 from loguru import logger
 from pathlib import Path
-from pystac import (
-    Item,
-    ItemCollection
-)
-from typing import (
-    List,
-    Mapping
-)
+from pystac import Item, ItemCollection
+from typing import List, Mapping
 
 import click
 import json
-import os
-import time    
+import time
 
 
 class QueryOutputFormat(Enum):
@@ -58,37 +46,48 @@ def _track(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()
 
-        logger.info(f"Started at: {datetime.fromtimestamp(start_time).isoformat(timespec='milliseconds')}")
+        logger.info(
+            f"Started at: {datetime.fromtimestamp(start_time).isoformat(timespec='milliseconds')}"
+        )
 
         try:
             func(*args, **kwargs)
 
-            logger.success('------------------------------------------------------------------------')
-            logger.success('SUCCESS')
-            logger.success('------------------------------------------------------------------------')
+            logger.success(
+                "------------------------------------------------------------------------"
+            )
+            logger.success("SUCCESS")
+            logger.success(
+                "------------------------------------------------------------------------"
+            )
         except Exception as e:
-            logger.error('------------------------------------------------------------------------')
-            logger.error('FAIL')
+            logger.error(
+                "------------------------------------------------------------------------"
+            )
+            logger.error("FAIL")
             logger.error(e)
-            logger.error('------------------------------------------------------------------------')
+            logger.error(
+                "------------------------------------------------------------------------"
+            )
 
         end_time = time.time()
 
         logger.info(f"Total time: {end_time - start_time:.4f} seconds")
-        logger.info(f"Finished at: {datetime.fromtimestamp(end_time).isoformat(timespec='milliseconds')}")
+        logger.info(
+            f"Finished at: {datetime.fromtimestamp(end_time).isoformat(timespec='milliseconds')}"
+        )
 
     return wrapper
 
-def _parse_filter(
-    filter: str,
-    filter_lang: FilterLang
-) -> str | Mapping[str, Mapping]:
+
+def _parse_filter(filter: str, filter_lang: FilterLang) -> str | Mapping[str, Mapping]:
     cql2_filter: str | Mapping[str, Mapping] = filter
 
     if FilterLang.CQL2_JSON == filter_lang:
         cql2_filter = json.loads(filter)
-    
+
     return cql2_filter
+
 
 @click.group()
 def main():
@@ -126,7 +125,7 @@ def main():
 @click.option(
     "--output-dir",
     type=click.Path(writable=True, file_okay=False, dir_okay=True, path_type=Path),
-    default=Path('.'),
+    default=Path("."),
     required=True,
     help="Output file path",
 )
@@ -135,7 +134,7 @@ def main():
     is_flag=True,
     required=False,
     default=False,
-    help="Traces the HTTP protocol."
+    help="Traces the HTTP protocol.",
 )
 @click.option(
     "--timeout",
@@ -151,17 +150,16 @@ def search(
     dry_run: bool,
     output_dir: Path,
     verbose: bool,
-    timeout: int
+    timeout: int,
 ):
     logger.warning(f"DRY RUN: {dry_run}")
 
-    cql2_filter: str | Mapping[str, Mapping] = _parse_filter(filter=filter, filter_lang=filter_lang)
+    cql2_filter: str | Mapping[str, Mapping] = _parse_filter(
+        filter=filter, filter_lang=filter_lang
+    )
 
     if dry_run:
-        dry_run_aeronet_search(
-            url=url,
-            cql2_filter=cql2_filter
-        )
+        dry_run_aeronet_search(url=url, cql2_filter=cql2_filter)
         return
 
     current_item: Item | None = aeronet_search(
@@ -169,14 +167,12 @@ def search(
         cql2_filter=cql2_filter,
         output_dir=output_dir,
         verbose=verbose,
-        timeout=timeout
+        timeout=timeout,
     )
 
     if current_item:
-        json_dump(
-            obj=current_item.to_dict(),
-            pretty_print=True
-        )
+        json_dump(obj=current_item.to_dict(), pretty_print=True)
+
 
 @main.command(context_settings={"show_default": True})
 @click.argument(
@@ -197,7 +193,7 @@ def search(
     is_flag=True,
     required=False,
     default=False,
-    help="Traces the HTTP protocol."
+    help="Traces the HTTP protocol.",
 )
 @click.option(
     "--timeout",
@@ -206,29 +202,15 @@ def search(
     default=30,
     help="Connection timeout, in seconds",
 )
-def dump_stations(
-    url: str,
-    output_file: Path,
-    verbose: bool,
-    timeout: int
-):
-    items: List[Item] = get_aeronet_stations(
-        url=url,
-        verbose=verbose,
-        timeout=timeout
-    )
+def dump_stations(url: str, output_file: Path, verbose: bool, timeout: int):
+    items: List[Item] = get_aeronet_stations(url=url, verbose=verbose, timeout=timeout)
 
-    dump_items(
-        items=items,
-        output_file=output_file
-    )        
+    dump_items(items=items, output_file=output_file)
+
 
 @main.command(context_settings={"show_default": True})
 @click.argument(
-    "file_path",
-    type=click.STRING,
-    required=True,
-    default=DEFAULT_STATIONS_PARQUET_URL
+    "file_path", type=click.STRING, required=True, default=DEFAULT_STATIONS_PARQUET_URL
 )
 @click.option(
     "--filter",
@@ -250,16 +232,14 @@ def dump_stations(
     help="Output format",
 )
 def query_stations(
-    file_path: str,
-    filter: str,
-    filter_lang: FilterLang,
-    format: QueryOutputFormat
-):  
-    cql2_filter: str | Mapping[str, Mapping] = _parse_filter(filter=filter, filter_lang=filter_lang)
+    file_path: str, filter: str, filter_lang: FilterLang, format: QueryOutputFormat
+):
+    cql2_filter: str | Mapping[str, Mapping] = _parse_filter(
+        filter=filter, filter_lang=filter_lang
+    )
 
     sql_query, items = query_stations_from_parquet(
-        file_path=file_path,
-        cql2_filter=cql2_filter
+        file_path=file_path, cql2_filter=cql2_filter
     )
 
     logger.info(f"Filtered data with `{sql_query}` query on {file_path} parquet file:")
@@ -271,16 +251,12 @@ def query_stations(
                 print()
 
         case QueryOutputFormat.STAC:
-            collection: ItemCollection = ItemCollection(
-                items=items
-            )
-            json_dump(
-                obj=collection.to_dict(),
-                pretty_print=True
-            )
+            collection: ItemCollection = ItemCollection(items=items)
+            json_dump(obj=collection.to_dict(), pretty_print=True)
 
         case _:
             logger.error(f"It's not you, it's us: output format {format} not supported")
+
 
 for command in [query_stations, search]:
     command.callback = _track(command.callback)
