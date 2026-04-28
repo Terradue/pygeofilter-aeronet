@@ -50,7 +50,7 @@ jobs:
 
       - name: Run aeronet-client dump
         run: |
-          aeronet-client dump-stations --verbose --output-file=./stations.parquet
+          aeronet-client dump-stations --verbose --timeout 60 --output-file=./stations.parquet
 
       - name: Configure git author
         run: |
