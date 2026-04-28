@@ -14,16 +14,9 @@
 
 from __future__ import annotations
 
-from pystac.extensions.base import (
-    ExtensionManagementMixin,
-    PropertiesExtension
-)
+from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
 from pystac.utils import get_required
-from typing import (
-    Any,
-    Dict,
-    Literal
-)
+from typing import Any, Dict, Literal
 
 import pystac
 
@@ -38,6 +31,7 @@ L10_PROP = AERONET_PREFIX + "L10"
 L15_PROP = AERONET_PREFIX + "L15"
 L20_PROP = AERONET_PREFIX + "L20"
 MOON_L15_PROP = AERONET_PREFIX + "moon_L15"
+
 
 class AeronetExtension(
     PropertiesExtension,

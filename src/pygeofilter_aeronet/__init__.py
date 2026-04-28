@@ -16,58 +16,28 @@ from .aeronet_client import Client as AeronetClient
 from .aeronet_client.api.default.search import sync as aeronet_client_search
 from .aeronet_client.api.default.get_stations import sync as get_stations
 from .aeronet_stac_extension import AeronetExtension
-from .evaluator import (
-    to_aeronet_api,
-    SUPPORTED_VALUES
-)
+from .evaluator import to_aeronet_api, SUPPORTED_VALUES
 from .utils import verbose_client
 from datetime import datetime
-from enum import (
-    Enum,
-    auto
-)
-from geopandas import (
-    GeoDataFrame,
-    GeoSeries
-)
+from enum import Enum, auto
+from geopandas import GeoDataFrame, GeoSeries
 from httpx import Timeout
 from io import StringIO
 from loguru import logger
-from pandas import (
-    DataFrame,
-    to_datetime,
-    read_csv
-)
+from pandas import DataFrame, to_datetime, read_csv
 from pathlib import Path
-from pystac import (
-    Asset,
-    Item,
-    Link
-)
-from pystac.extensions.table import (
-    TableExtension,
-    Column
-)
+from pystac import Asset, Item, Link
+from pystac.extensions.table import TableExtension, Column
 from pygeofilter_duckdb import to_sql_where
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from shapely.geometry import (
-    Point,
-    MultiPoint,
-    mapping
-)
+from shapely.geometry import Point, MultiPoint, mapping
 from stac_geoparquet.arrow import (
     parse_stac_items_to_arrow,
     stac_table_to_items,
-    to_parquet
+    to_parquet,
 )
-from typing import (
-    Any,
-    List,
-    Mapping,
-    Optional,
-    Tuple
-)
+from typing import Any, List, Mapping, Optional, Tuple
 
 import duckdb
 import geopandas
@@ -90,98 +60,90 @@ class FilterLang(Enum):
     CQL2_JSON = auto()
     CQL2_TEXT = auto()
 
-def dump_items(
-    items: List[Item],
-    output_file: Path
-):
-    logger.info('Converting the STAC Items pyarrow Table...')
+
+def dump_items(items: List[Item], output_file: Path):
+    logger.info("Converting the STAC Items pyarrow Table...")
     record_batch_reader = parse_stac_items_to_arrow(items)
     table = record_batch_reader.read_all()
-    logger.success('STAC Items converted to pyarrow Table')
+    logger.success("STAC Items converted to pyarrow Table")
 
     logger.info(f"Saving the GeoParquet data to {output_file.absolute()}...")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     to_parquet(table, output_path=output_file)
     logger.success(f"GeoParquet data saved to {output_file.absolute()}")
 
+
 def get_aeronet_stations(
-    url: str = AERONET_API_BASE_URL,
-    verbose: bool = False,
-    timeout: int | None = None
+    url: str = AERONET_API_BASE_URL, verbose: bool = False, timeout: int | None = None
 ) -> List[Item]:
-    with AeronetClient(
-        base_url=url,
-        timeout=Timeout(timeout)
-    ) as aeronet_client:
+    with AeronetClient(base_url=url, timeout=Timeout(timeout)) as aeronet_client:
         if verbose:
             verbose_client(aeronet_client.get_httpx_client())
         raw_data = get_stations(client=aeronet_client)
         data_frame: DataFrame = read_csv(StringIO(raw_data), skiprows=1)
 
-        logger.info('Converting CSV data to STAC Items:')
+        logger.info("Converting CSV data to STAC Items:")
 
         items: List[Item] = []
 
         for _, row in data_frame.iterrows():
+
             def _to_date(column: str):
                 return datetime.strptime(str(row[column]), "%d-%m-%Y")
 
-            latitude = row['Latitude(decimal_degrees)']
-            longitude = row['Longitude(decimal_degrees)']
-            altitude = row['Altitude(Meters)']
-            start_datetime = _to_date('Data_Start_date(dd-mm-yyyy)')
-            end_datetime = _to_date('Data_End_Date(dd-mm-yyyy)')
+            latitude = row["Latitude(decimal_degrees)"]
+            longitude = row["Longitude(decimal_degrees)"]
+            altitude = row["Altitude(Meters)"]
+            start_datetime = _to_date("Data_Start_date(dd-mm-yyyy)")
+            end_datetime = _to_date("Data_End_Date(dd-mm-yyyy)")
 
             current_item: Item = Item(
-                id=row['New_Site_ID'],
+                id=row["New_Site_ID"],
                 assets={
-                    'source': Asset(
+                    "source": Asset(
                         href=f"{url}/aeronet_locations_extended_v3.txt",
-                        media_type='text/csv',
-                        description='Data source'
+                        media_type="text/csv",
+                        description="Data source",
                     )
                 },
-                bbox=[
-                    longitude,
-                    latitude,
-                    longitude,
-                    latitude
-                ],
+                bbox=[longitude, latitude, longitude, latitude],
                 datetime=datetime.now(),
                 start_datetime=start_datetime,
                 end_datetime=end_datetime,
                 geometry=mapping(Point([longitude, latitude, altitude])),
-                properties={
-                    'title': row['Name']
-                }
+                properties={"title": row["Name"]},
             )
 
-            aext: AeronetExtension = AeronetExtension.from_item(current_item, add_if_missing=True)
+            aext: AeronetExtension = AeronetExtension.from_item(
+                current_item, add_if_missing=True
+            )
             aext.apply(
-                site_name = str(row['Name']),
-                land_use_type = str(row['Land_Use_type']),
-                L10 = int(str(row['Number_of_days_L1'])),
-                L15 = int(str(row['Number_of_days_L1.5'])),
-                L20 = int(str(row['Number_of_days_L2'])),
-                moon_L15 = int(str(row['Number_of_days_Moon_L1.5']))
+                site_name=str(row["Name"]),
+                land_use_type=str(row["Land_Use_type"]),
+                L10=int(str(row["Number_of_days_L1"])),
+                L15=int(str(row["Number_of_days_L1.5"])),
+                L20=int(str(row["Number_of_days_L2"])),
+                moon_L15=int(str(row["Number_of_days_Moon_L1.5"])),
             )
 
             items.append(current_item)
 
-        logger.success('CSV data converted to STAC Items')
+        logger.success("CSV data converted to STAC Items")
 
         return items
 
+
 def query_stations_from_parquet(
-    file_path: str,
-    cql2_filter: str | Mapping[str, Any] | None = None
+    file_path: str, cql2_filter: str | Mapping[str, Any] | None = None
 ) -> Tuple[str, List[Item]]:
-    sql_query = f"SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) as geometry FROM '{file_path}'"
+    sql_query = (
+        f"SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) as geometry FROM '{file_path}'"
+    )
 
     if cql2_filter:
         sql_where = to_sql_where(
-            root=json_parse(cql2_filter), # type: ignore
-            field_mapping=IdempotentDict() # type: ignore
+            root=json_parse(cql2_filter),  # type: ignore
+            field_mapping=IdempotentDict(),  # type: ignore
         )
         sql_query += f" WHERE {sql_where}"
 
@@ -189,11 +151,12 @@ def query_stations_from_parquet(
     results_table = results_set.fetch_arrow_table()
 
     items: List[Item] = []
-    
+
     for item in stac_table_to_items(results_table):
         items.append(Item.from_dict(item))
 
     return (sql_query, items)
+
 
 def _read_aeronet_site_list() -> List[str]:
     """
@@ -210,34 +173,33 @@ def _read_aeronet_site_list() -> List[str]:
     """
 
     site_list: List[str] = []
-    
+
     _, items = query_stations_from_parquet(DEFAULT_STATIONS_PARQUET_URL)
     for item in items:
-        site_list.append(item.properties['aeronet:site_name'])
+        site_list.append(item.properties["aeronet:site_name"])
     return site_list
 
-SUPPORTED_VALUES['site'] = _read_aeronet_site_list()
+
+SUPPORTED_VALUES["site"] = _read_aeronet_site_list()
+
 
 def dry_run_aeronet_search(
-    cql2_filter: str | Mapping[str, Any],
-    url: str = AERONET_API_BASE_URL
+    cql2_filter: str | Mapping[str, Any], url: str = AERONET_API_BASE_URL
 ):
     filter, _ = to_aeronet_api(cql2_filter)
     logger.info(f"You can browse data on: {url}/cgi-bin/print_web_data_v3?{filter}")
+
 
 def aeronet_search(
     cql2_filter: str | Mapping[str, Any],
     output_dir: Path,
     url: str = AERONET_API_BASE_URL,
     verbose: bool = False,
-    timeout: int | None = None
+    timeout: int | None = None,
 ) -> Item:
     filter, query_parameters = to_aeronet_api(cql2_filter)
 
-    with AeronetClient(
-        base_url=url,
-        timeout=Timeout(timeout)
-    ) as aeronet_client:
+    with AeronetClient(base_url=url, timeout=Timeout(timeout)) as aeronet_client:
         if verbose:
             verbose_client(aeronet_client.get_httpx_client())
         raw_data = aeronet_client_search(client=aeronet_client, **query_parameters)
@@ -273,47 +235,41 @@ def aeronet_search(
     time_col = "Time(hh:mm:ss)"
 
     # pick first matching date column
-    date_col: Optional[str] = next((c for c in ["Date(dd:mm:yyyy)", "Date_(dd:mm:yyyy)"] if c in gdf.columns), None)
-    time_col: Optional[str] = next((c for c in ["Time(hh:mm:ss)", "Time_(hh:mm:ss)"] if c in gdf.columns), None)
+    date_col: Optional[str] = next(
+        (c for c in ["Date(dd:mm:yyyy)", "Date_(dd:mm:yyyy)"] if c in gdf.columns), None
+    )
+    time_col: Optional[str] = next(
+        (c for c in ["Time(hh:mm:ss)", "Time_(hh:mm:ss)"] if c in gdf.columns), None
+    )
 
     if date_col in data.columns:
         if time_col in data.columns:
             gdf["datetime"] = to_datetime(
-                data[date_col] + " " + data[time_col],
-                format="%d:%m:%Y %H:%M:%S"
+                data[date_col] + " " + data[time_col], format="%d:%m:%Y %H:%M:%S"
             )
         else:
             gdf["datetime"] = to_datetime(
-                data[date_col] + " 00:00:00",
-                format="%d:%m:%Y %H:%M:%S"
+                data[date_col] + " 00:00:00", format="%d:%m:%Y %H:%M:%S"
             )
-    
+
     gdf = gdf.drop_duplicates()
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
     unique_points: GeoSeries = gdf.geometry
     unique_points.drop_duplicates()
-    multipoint = MultiPoint(points=unique_points) # type: ignore TODO
+    multipoint = MultiPoint(points=unique_points)  # type: ignore TODO
 
     # build the response Item
 
-    def _table_asset(
-        asset: Asset,
-        data: DataFrame
-    ) -> Asset:
+    def _table_asset(asset: Asset, data: DataFrame) -> Asset:
         ext = TableExtension.ext(asset, add_if_missing=False)
         ext.row_count = len(data)
 
         columns: List[Column] = []
         for col_name, dtype in data.dtypes.items():
             columns.append(
-                Column(
-                    properties={
-                        'name': col_name,
-                        'col_type': str(dtype)
-                    }
-                )
+                Column(properties={"name": col_name, "col_type": str(dtype)})
             )
         ext.columns = columns
 
@@ -322,35 +278,35 @@ def aeronet_search(
     current_item: Item = Item(
         id=f"urn:uuid:{id}",
         assets={
-            'csv': _table_asset(
+            "csv": _table_asset(
                 asset=Asset(
                     href=str(csv_output_file),
-                    media_type='text/csv',
-                    description='Search result - CVS Format'
+                    media_type="text/csv",
+                    description="Search result - CVS Format",
                 ),
-                data=data
+                data=data,
             ),
-            'geoparquet': _table_asset(
+            "geoparquet": _table_asset(
                 asset=Asset(
                     href=str(parquet_output_file),
-                    media_type='application/vnd.apache.parquet',
-                    description='Search result - GeoParquet Format'
+                    media_type="application/vnd.apache.parquet",
+                    description="Search result - GeoParquet Format",
                 ),
-                data=gdf
-            )
+                data=gdf,
+            ),
         },
         bbox=list(multipoint.envelope.bounds),
         datetime=datetime.now(),
         geometry=mapping(multipoint.envelope),
-        properties={}
+        properties={},
     )
 
     current_item.links = [
         Link(
-            rel='related',
-            media_type='text/csv',
-            title='AERONET Web Service search',
-            target=f"{url}/cgi-bin/print_web_data_v3?{filter}"
+            rel="related",
+            media_type="text/csv",
+            title="AERONET Web Service search",
+            target=f"{url}/cgi-bin/print_web_data_v3?{filter}",
         )
     ]
 

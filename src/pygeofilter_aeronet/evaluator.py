@@ -13,22 +13,13 @@
 # limitations under the License.
 
 from .aeronet_client.models.search_avg import SearchAVG
-from datetime import (
-    date,
-    datetime
-)
+from datetime import date, datetime
 from dateutil import parser as date_parser
 from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from typing import (
-    Any,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple
-)
+from typing import Any, Mapping, MutableMapping, Optional, Tuple
 
 import json
 import numbers
@@ -65,7 +56,7 @@ class AeronetEvaluator(Evaluator):
     def __init__(
         self,
         attribute_map: Mapping[str, str],
-        function_map: Optional[Mapping[str, str]] = None
+        function_map: Optional[Mapping[str, str]] = None,
     ):
         self.attribute_map = attribute_map
         self.function_map = function_map
@@ -100,18 +91,18 @@ class AeronetEvaluator(Evaluator):
         is_value_supported = rhs in TRUE_VALUE_LIST
 
         if lhs in ["format"]:
-            self.query_parameters['if_no_html'] = 1 if 'csv' == rhs else 0
+            self.query_parameters["if_no_html"] = 1 if "csv" == rhs else 0
             return "if_no_html=1" if rhs == "csv" else "if_no_html=0"
 
         if lhs in ["data_format"]:
-            avg = SearchAVG.VALUE_20 if 'daily-average' == rhs else SearchAVG.VALUE_10
-            self.query_parameters['avg'] = avg
+            avg = SearchAVG.VALUE_20 if "daily-average" == rhs else SearchAVG.VALUE_10
+            self.query_parameters["avg"] = avg
             return f"AVG={avg}"
 
         if is_value_supported:
             self.query_parameters[rhs.lower()] = 1
             return f"{rhs}=1"
-        
+
         self.query_parameters[lhs.lower()] = rhs
         return f"{lhs}={rhs}"
 
@@ -123,10 +114,10 @@ class AeronetEvaluator(Evaluator):
     def timeAfter(self, node, lhs, rhs):
         date = date_parser.parse(str(rhs))
 
-        self.query_parameters['year'] = date.year
-        self.query_parameters['month'] = date.month
-        self.query_parameters['day'] = date.day
-        self.query_parameters['hour'] = date.hour
+        self.query_parameters["year"] = date.year
+        self.query_parameters["month"] = date.month
+        self.query_parameters["day"] = date.day
+        self.query_parameters["hour"] = date.hour
 
         return f"year={date.year}&month={date.month}&day={date.day}&hour={date.hour}"
 
@@ -134,12 +125,14 @@ class AeronetEvaluator(Evaluator):
     def timeBefore(self, node, lhs, rhs):
         date = date_parser.parse(str(rhs))
 
-        self.query_parameters['year2'] = date.year
-        self.query_parameters['month2'] = date.month
-        self.query_parameters['day2'] = date.day
-        self.query_parameters['hour2'] = date.hour
+        self.query_parameters["year2"] = date.year
+        self.query_parameters["month2"] = date.month
+        self.query_parameters["day2"] = date.day
+        self.query_parameters["hour2"] = date.hour
 
-        return f"year2={date.year}&month2={date.month}&day2={date.day}&hour2={date.hour}"
+        return (
+            f"year2={date.year}&month2={date.month}&day2={date.day}&hour2={date.hour}"
+        )
 
     @handle(values.Geometry)
     def geometry(self, node: values.Geometry):
@@ -151,18 +144,19 @@ class AeronetEvaluator(Evaluator):
     def geometry_intersects(self, node, lhs, rhs):
         # note for maintainers:
         # we evaluate as the bounding box of the geometry
-        self.query_parameters['lon1'] = rhs[0]
-        self.query_parameters['lat1'] = rhs[1]
-        self.query_parameters['lon2'] = rhs[2]
-        self.query_parameters['lat2'] = rhs[3]
+        self.query_parameters["lon1"] = rhs[0]
+        self.query_parameters["lat1"] = rhs[1]
+        self.query_parameters["lon2"] = rhs[2]
+        self.query_parameters["lat2"] = rhs[3]
 
         return f"lon1={rhs[0]}&lat1={rhs[1]}&lon2={rhs[2]}&lat2={rhs[3]}"
 
+
 def to_aeronet_api(
-    cql2_filter: str | Mapping[str, Any]
+    cql2_filter: str | Mapping[str, Any],
 ) -> Tuple[str, Mapping[str, Any]]:
     evaluator: AeronetEvaluator = AeronetEvaluator(IdempotentDict())
-    root: ast.AstType = json_parse(cql2_filter) # type: ignore
+    root: ast.AstType = json_parse(cql2_filter)  # type: ignore
     querystring: str = evaluator.evaluate(root)
     query_parameters: Mapping[str, Any] = evaluator.query_parameters
     return (querystring, query_parameters)

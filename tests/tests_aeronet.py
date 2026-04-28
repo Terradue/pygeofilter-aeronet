@@ -13,8 +13,6 @@
 # limitations under the License.
 
 import unittest
-from pygeofilter.util import IdempotentDict
-from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter_aeronet.evaluator import to_aeronet_api
 
 
