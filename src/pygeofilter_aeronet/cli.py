@@ -258,5 +258,5 @@ def query_stations(
             logger.error(f"It's not you, it's us: output format {format} not supported")
 
 
-for command in [query_stations, search]:
+for command in [dump_stations, query_stations, search]:
     command.callback = _track(command.callback)
