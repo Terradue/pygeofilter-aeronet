@@ -43,7 +43,7 @@ dependencies = [
   "attrs==26.1.0",
   "python-dateutil==2.9.0.post0",
   "pystac==1.14.3",
-  "stac-geoparquet==0.7.0"
+  "stac-geoparquet==0.8.0"
 ]
 
 [tool.hatch.metadata]
