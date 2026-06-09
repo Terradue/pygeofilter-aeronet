@@ -31,7 +31,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "pygeofilter==0.3.3",
+  "pygeofilter==0.4.0",
   "pygeofilter-duckdb==0.1.0",
   "shapely==2.1.2",
   "loguru==0.7.3",
