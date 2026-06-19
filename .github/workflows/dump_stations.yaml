@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout stations-update branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: stations-update
           fetch-depth: 0
