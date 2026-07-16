@@ -2,7 +2,8 @@
 # pygeofilter-aeronet
 
 [![Documentation](https://img.shields.io/badge/docs-online-blue.svg)](https://terradue.github.io/pygeofilter-aeronet/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![PyPI - Version](https://img.shields.io/pypi/v/transpiler-mate.svg)](https://pypi.org/project/transpiler-mate)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/transpiler-mate.svg)](https://pypi.org/project/transpiler-mate)
 
 **pygeofilter-aeronet** provides a [pygeofilter](https://github.com/geopython/pygeofilter) extension for querying NASA’s [AERONET](https://aeronet.gsfc.nasa.gov/) aerosol optical depth datasets through the [AERONET Web Service v3 API](https://aeronet.gsfc.nasa.gov/print_web_data_help_v3.html).
 
@@ -90,3 +91,6 @@ cd pygeofilter-aeronet
 hatch shell
 ```
 
+## License
+
+[![Apache License, Version 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)
