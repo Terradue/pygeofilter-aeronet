@@ -50,7 +50,7 @@ dependencies = [
 allow-direct-references = true
 
 [project.urls]
-Documentation = "https://github.com/Terradue/pygeofilter-aeronet#readme"
+Documentation = "https://terradue.github.io/pygeofilter-aeronet/"
 Issues = "https://github.com/Terradue/pygeofilter-aeronet/issues"
 Source = "https://github.com/Terradue/pygeofilter-aeronet"
 
