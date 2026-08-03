@@ -57,15 +57,6 @@ Source = "https://github.com/Terradue/pygeofilter-aeronet"
 [tool.hatch.envs.prod]
 path = "/app/envs/aeronet-client"
 
-[tool.hatch.envs.dev]
-extra-dependencies = [
-  "pytest==9.0.2",
-  "ruff==0.15.6",
-]
-[tool.hatch.envs.dev.scripts]
-lint = "ruff format src tests"
-check = "ruff check --fix src tests"
-
 [project.scripts]
 aeronet-client = "pygeofilter_aeronet.cli:main"
 
@@ -89,12 +80,6 @@ exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
-]
-
-[tool.pytest.ini_options]
-python_files = [
-  "test_*.py",
-  "tests_*.py",
 ]
 
 [tool.hatch.envs.default.scripts]
