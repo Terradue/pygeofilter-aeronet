@@ -72,13 +72,6 @@ aeronet-client = "pygeofilter_aeronet.cli:main"
 [tool.hatch.version]
 path = "src/pygeofilter_aeronet/__about__.py"
 
-[tool.hatch.envs.types]
-extra-dependencies = [
-  "mypy>=1.0.0",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/pygeofilter_aeronet tests}"
-
 [tool.coverage.run]
 source_pkgs = ["pygeofilter_aeronet", "tests"]
 branch = true
@@ -108,15 +101,24 @@ python_files = [
 test = "hatch run nose2"
 
 [tool.hatch.envs.test]
-description = "Test environment"
 skip-install = false
-dependencies = ["pytest==9.0.2", "pytest-cov==7.0.0"]
+dependencies = [
+  "pytest>=8.4,<10",
+  "pytest-cov>=6.2,<8",
+]
 
 [tool.hatch.envs.test.scripts]
-test = "pytest"
-test-q = "pytest -q"
-test-cov = "pytest --cov=transpiler_mate"
+test = "pytest {args:tests}"
+testv = "pytest --verbose {args:tests}"
+test-cov = "pytest --cov=pygeofilter-aeronet --cov-report=term-missing {args:tests}"
 test-show-setup = "pytest --setup-show"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+]
 
 [[tool.hatch.envs.test.matrix]]
 python = [
@@ -130,3 +132,49 @@ python = [
 # duckdb<1.2.0
 #  "3.14"
 ]
+
+[tool.hatch.envs.dev]
+skip-install = false
+dependencies = [
+  "pytest>=8.4,<10",
+  "mypy>=2.3.0",
+  "ruff>=0.16.0",
+  "bandit>=1.9.4",
+]
+
+[tool.ruff.lint]
+# Start with the essential rules
+select = [
+  "F",    # Pyflakes (Critical for bugs)
+  "E",    # pycodestyle Errors
+  "W",    # pycodestyle Warnings
+  "I",    # isort (Import sorting)
+  "UP",   # pyupgrade (Modern syntax)
+  "B",    # flake8-bugbear (Common bugs)
+  "C4",   # flake8-comprehensions
+  "SIM",  # flake8-simplify
+  "FA",   # flake8-future-annotations
+  "TC",   # flake8-type-checking
+  "PTH",  # flake8-use-pathlib
+  "RET",  # flake8-return
+  "C90",  # McCabe Complexity (Enables C901)
+]
+
+# Ignore rules that conflict with the formatter (Ruff Format/Black)
+ignore = [
+  "E501", # Line too long (handled by formatter)
+  "W191", # Tab indentation (handled by formatter)
+  "E111", # Indentation issues (handled by formatter)
+  "E114", # Indentation issues (handled by formatter)
+  "E117", # Over-indented (handled by formatter)
+]
+
+[tool.ruff.lint.mccabe]
+# Flag errors (C901) whenever complexity exceeds 10 (default is 10)
+max-complexity = 10
+
+[tool.hatch.envs.dev.scripts]
+typecheck = "mypy --install-types --non-interactive {args:src/transpiler_mate}"
+lint = "ruff format {args:src tests}"
+check = "ruff check --fix {args:src tests}"
+security = "bandit -r {args:src}"
