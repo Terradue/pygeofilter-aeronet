@@ -12,6 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import time
+from collections.abc import Mapping
+from datetime import datetime
+from enum import Enum, auto
+from functools import wraps
+from pathlib import Path
+
+import click
+from loguru import logger
+from pystac import Item, ItemCollection
+
 from . import (
     AERONET_API_BASE_URL,
     DEFAULT_STATIONS_PARQUET_URL,
@@ -23,17 +35,6 @@ from . import (
     query_stations_from_parquet,
 )
 from .utils import json_dump
-from datetime import datetime
-from enum import Enum, auto
-from functools import wraps
-from loguru import logger
-from pathlib import Path
-from pystac import Item, ItemCollection
-from typing import List, Mapping
-
-import click
-import json
-import time
 
 
 class QueryOutputFormat(Enum):
@@ -83,7 +84,7 @@ def _track(func):
 def _parse_filter(filter: str, filter_lang: FilterLang) -> str | Mapping[str, Mapping]:
     cql2_filter: str | Mapping[str, Mapping] = filter
 
-    if FilterLang.CQL2_JSON == filter_lang:
+    if filter_lang == FilterLang.CQL2_JSON:
         cql2_filter = json.loads(filter)
 
     return cql2_filter
@@ -125,7 +126,7 @@ def main():
 @click.option(
     "--output-dir",
     type=click.Path(writable=True, file_okay=False, dir_okay=True, path_type=Path),
-    default=Path("."),
+    default=Path(),
     required=True,
     help="Output file path",
 )
@@ -203,7 +204,7 @@ def search(
     help="Connection timeout, in seconds",
 )
 def dump_stations(url: str, output_file: Path, verbose: bool, timeout: int):
-    items: List[Item] = get_aeronet_stations(url=url, verbose=verbose, timeout=timeout)
+    items: list[Item] = get_aeronet_stations(url=url, verbose=verbose, timeout=timeout)
 
     dump_items(items=items, output_file=output_file)
 

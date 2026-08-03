@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import unittest
+
 from pygeofilter_aeronet.evaluator import to_aeronet_api
 
 
@@ -37,7 +38,7 @@ class TestQueryAttributes(unittest.TestCase):
             "args": [{"op": "eq", "args": [{"property": "site"}, "Wrong_Site"]}],
         }
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             to_aeronet_api(cql2_filter)
 
     def test_data_type(self):

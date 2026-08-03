@@ -21,13 +21,11 @@ def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
 ) -> str | None:
     if response.status_code == 200:
-        response_200 = response.text
-        return response_200
+        return response.text
 
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(

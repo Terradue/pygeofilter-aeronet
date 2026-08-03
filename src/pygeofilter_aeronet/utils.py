@@ -12,15 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-from functools import wraps
-from http import HTTPStatus
-from httpx import Client, Headers, Request, RequestNotRead, Response
-from loguru import logger
-from typing import Any, Mapping
+from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime
+from functools import wraps
+from http import HTTPStatus
+from typing import TYPE_CHECKING, Any
+
+from httpx import Client, Headers, Request, RequestNotRead, Response
+from loguru import logger
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 def _support_datetime_serialization(obj):

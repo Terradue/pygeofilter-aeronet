@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .aeronet_client.models.search_avg import SearchAVG
+import json
+import numbers
+from collections.abc import Mapping, MutableMapping
 from datetime import date, datetime
+from typing import Any
+
+import shapely
 from dateutil import parser as date_parser
 from pygeofilter import ast, values
 from pygeofilter.backends.evaluator import Evaluator, handle
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from typing import Any, Mapping, MutableMapping, Optional, Tuple
 
-import json
-import numbers
-import shapely
-
+from .aeronet_client.models.search_avg import SearchAVG
 
 AERONET_DATA_TYPES = [
     "AOD10",
@@ -56,7 +57,7 @@ class AeronetEvaluator(Evaluator):
     def __init__(
         self,
         attribute_map: Mapping[str, str],
-        function_map: Optional[Mapping[str, str]] = None,
+        function_map: Mapping[str, str] | None = None,
     ):
         self.attribute_map = attribute_map
         self.function_map = function_map
@@ -71,31 +72,31 @@ class AeronetEvaluator(Evaluator):
     def literal(self, node):
         if isinstance(node, numbers.Number):
             return node
-        elif isinstance(node, date) or isinstance(node, datetime):
+        if isinstance(node, (date, datetime)):
             return node.strftime(
                 "%Y-%m-%dT%H:%M:%S%Z"
             )  # Implicit UTC timezone, explicit not supported by the backend
-        else:
-            # TODO:
-            return str(node)
+        # TODO:
+        return str(node)
 
     @handle(ast.Equal)
     def equal(self, node, lhs, rhs):
         supported_values = SUPPORTED_VALUES.get(lhs)
 
-        if supported_values is not None:
-            assert rhs in supported_values, (
-                f"'{rhs}' is not supported value for '{lhs}', expected one of {supported_values}"
+        if supported_values is not None and rhs not in supported_values:
+            raise ValueError(
+                f"'{rhs}' is not supported value for '{lhs}', "
+                f"expected one of {supported_values}"
             )
 
         is_value_supported = rhs in TRUE_VALUE_LIST
 
         if lhs in ["format"]:
-            self.query_parameters["if_no_html"] = 1 if "csv" == rhs else 0
+            self.query_parameters["if_no_html"] = 1 if rhs == "csv" else 0
             return "if_no_html=1" if rhs == "csv" else "if_no_html=0"
 
         if lhs in ["data_format"]:
-            avg = SearchAVG.VALUE_20 if "daily-average" == rhs else SearchAVG.VALUE_10
+            avg = SearchAVG.VALUE_20 if rhs == "daily-average" else SearchAVG.VALUE_10
             self.query_parameters["avg"] = avg
             return f"AVG={avg}"
 
@@ -154,7 +155,7 @@ class AeronetEvaluator(Evaluator):
 
 def to_aeronet_api(
     cql2_filter: str | Mapping[str, Any],
-) -> Tuple[str, Mapping[str, Any]]:
+) -> tuple[str, Mapping[str, Any]]:
     evaluator: AeronetEvaluator = AeronetEvaluator(IdempotentDict())
     root: ast.AstType = json_parse(cql2_filter)  # type: ignore
     querystring: str = evaluator.evaluate(root)

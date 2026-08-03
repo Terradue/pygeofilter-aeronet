@@ -14,11 +14,11 @@
 
 from __future__ import annotations
 
-from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
-from pystac.utils import get_required
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 
 import pystac
+from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
+from pystac.utils import get_required
 
 # Constants
 AERONET_SCHEMA_URI: str = "https://raw.githubusercontent.com/Terradue/aeronet-stac-extension/refs/heads/main/json-schema/schema.json"
@@ -53,7 +53,7 @@ class AeronetExtension(
     name: Literal["aeronet"] = "aeronet"
 
     item: pystac.Item
-    properties: Dict[str, Any]
+    properties: dict[str, Any]
 
     def __init__(self, item: pystac.Item) -> None:
         self.item = item
@@ -78,15 +78,14 @@ class AeronetExtension(
         cls,
         obj: pystac.Item,
         add_if_missing: bool = False,
-    ) -> "AeronetExtension":
+    ) -> AeronetExtension:
         if isinstance(obj, pystac.Item):
             # ensures schema URI is in item.stac_extensions
             cls.ensure_has_extension(obj, add_if_missing)
             return cls(obj)
-        else:
-            raise pystac.ExtensionTypeError(
-                f"AeronetExtension does not apply to type '{type(obj).__name__}'"
-            )
+        raise pystac.ExtensionTypeError(
+            f"AeronetExtension does not apply to type '{type(obj).__name__}'"
+        )
 
     # Convenience alias, like in the tutorial
     @classmethod
@@ -94,7 +93,7 @@ class AeronetExtension(
         cls,
         item: pystac.Item,
         add_if_missing: bool = False,
-    ) -> "AeronetExtension":
+    ) -> AeronetExtension:
         return cls.ext(item, add_if_missing=add_if_missing)
 
     # Optional helper to set everything in one call

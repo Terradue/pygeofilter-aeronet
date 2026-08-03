@@ -100,6 +100,7 @@ test-show-setup = "pytest --setup-show"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+python_files = ["test*.py"]
 addopts = [
   "--strict-config",
   "--strict-markers",
@@ -126,6 +127,14 @@ dependencies = [
   "ruff>=0.16.0",
   "bandit>=1.9.4",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+  "pygeofilter",
+  "pygeofilter.*",
+  "pygeofilter_duckdb",
+]
+ignore_missing_imports = true
 
 [tool.ruff.lint]
 # Start with the essential rules
