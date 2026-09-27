@@ -13,31 +13,31 @@
 # limitations under the License.
 
 name: docs
+permissions:
+  contents: write
+
 on:
   push:
     branches:
-      - docs
-      - develop
-      - main
+    - develop
+    - main
+    - master
     paths:
-      # Only rebuild website when docs have changed
-      - 'README.md'
-      - 'docs/**'
-      - 'mkdocs.yaml'
-      - .github/docs.yaml
+    # Only rebuild website when docs have changed
+    - README.md
+    - docs/**
+    - mkdocs.yaml
+    - .github/**
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout master
-        uses: actions/checkout@v6
-
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.12
-      - run: pip install mkdocs-material mkdocs-mermaid2-plugin jupytext ipykernel bash_kernel mkdocs-jupyter legacy-cgi pdocs mkdocs-build-plantuml-plugin folium "numpy<2.0.0" 
-      - run: pip install .
-      - run: pdocs as_markdown --output_dir ./docs/api/latest --exclude_source --overwrite pygeofilter_aeronet
-      - run: mkdocs gh-deploy --force
+    - name: Checkout master
+      uses: actions/checkout@v7.0.1
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v7.0.0
+      with:
+        python-version: 3.x
+    - run: pip install "mkdocs<=2.0.0" mkdocs-material mkdocs-mermaid2-plugin mkdocstrings[python]
+    - run: mkdocs gh-deploy --force

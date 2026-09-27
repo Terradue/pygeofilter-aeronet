@@ -13,15 +13,26 @@
 # limitations under the License.
 
 import unittest
+from unittest.mock import patch
 
-from pygeofilter_aeronet.evaluator import to_aeronet_api
+# These are filter-conversion unit tests. Package initialization normally loads
+# DuckDB extensions and the remote station catalogue; neither belongs in this test.
+with (
+    patch("duckdb.install_extension"),
+    patch("duckdb.load_extension"),
+    patch("duckdb.execute"),
+    patch("stac_geoparquet.arrow.stac_table_to_items", return_value=[]),
+):
+    from pygeofilter_aeronet.evaluator import SUPPORTED_VALUES, to_aeronet_api
 
 
 class TestQueryAttributes(unittest.TestCase):
-    def setUp(self):
-        pass
+    def setUp(self) -> None:
+        stations = patch.dict(SUPPORTED_VALUES, {"site": ["Cart_Site"]})
+        stations.start()
+        self.addCleanup(stations.stop)
 
-    def test_site(self):
+    def test_site(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [{"op": "eq", "args": [{"property": "site"}, "Cart_Site"]}],
@@ -32,7 +43,7 @@ class TestQueryAttributes(unittest.TestCase):
 
         self.assertEqual(expected, current)
 
-    def test_wrong_site(self):
+    def test_wrong_site(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [{"op": "eq", "args": [{"property": "site"}, "Wrong_Site"]}],
@@ -41,7 +52,7 @@ class TestQueryAttributes(unittest.TestCase):
         with self.assertRaises(ValueError):
             to_aeronet_api(cql2_filter)
 
-    def test_data_type(self):
+    def test_data_type(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [{"op": "eq", "args": [{"property": "data_type"}, "AOD10"]}],
@@ -52,7 +63,7 @@ class TestQueryAttributes(unittest.TestCase):
 
         self.assertEqual(expected, current)
 
-    def test_site_datatype(self):
+    def test_site_datatype(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [
@@ -66,7 +77,7 @@ class TestQueryAttributes(unittest.TestCase):
 
         self.assertEqual(expected, current)
 
-    def test_format_csv(self):
+    def test_format_csv(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [{"op": "eq", "args": [{"property": "format"}, "csv"]}],
@@ -77,7 +88,7 @@ class TestQueryAttributes(unittest.TestCase):
 
         self.assertEqual(expected, current)
 
-    def test_format_html(self):
+    def test_format_html(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [{"op": "eq", "args": [{"property": "format"}, "html"]}],
@@ -88,7 +99,7 @@ class TestQueryAttributes(unittest.TestCase):
 
         self.assertEqual(expected, current)
 
-    def test_bbox(self):
+    def test_bbox(self) -> None:
         cql2_filter = {
             "op": "s_intersects",
             "args": [
@@ -116,7 +127,7 @@ class TestQueryAttributes(unittest.TestCase):
             current,
         )
 
-    def test_date_interval(self):
+    def test_date_interval(self) -> None:
 
         cql2_filter = {
             "op": "and",
@@ -146,7 +157,7 @@ class TestQueryAttributes(unittest.TestCase):
             current,
         )
 
-    def test_real_case(self):
+    def test_real_case(self) -> None:
         cql2_filter = {
             "op": "and",
             "args": [

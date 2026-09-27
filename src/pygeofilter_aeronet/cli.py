@@ -14,11 +14,12 @@
 
 import json
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import datetime
 from enum import Enum, auto
 from functools import wraps
 from pathlib import Path
+from typing import Any, ParamSpec
 
 import click
 from loguru import logger
@@ -42,9 +43,12 @@ class QueryOutputFormat(Enum):
     STAC = auto()
 
 
-def _track(func):
+P = ParamSpec("P")
+
+
+def _track(func: Callable[P, Any]) -> Callable[P, None]:
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> None:
         start_time = time.time()
 
         logger.info(
@@ -62,14 +66,10 @@ def _track(func):
                 "------------------------------------------------------------------------"
             )
         except Exception as e:
-            logger.error(
-                "------------------------------------------------------------------------"
-            )
+            logger.error("------------------------------------------------------------------------")
             logger.error("FAIL")
             logger.error(e)
-            logger.error(
-                "------------------------------------------------------------------------"
-            )
+            logger.error("------------------------------------------------------------------------")
 
         end_time = time.time()
 
@@ -81,8 +81,8 @@ def _track(func):
     return wrapper
 
 
-def _parse_filter(filter: str, filter_lang: FilterLang) -> str | Mapping[str, Mapping]:
-    cql2_filter: str | Mapping[str, Mapping] = filter
+def _parse_filter(filter: str, filter_lang: FilterLang) -> str | Mapping[str, Any]:
+    cql2_filter: str | Mapping[str, Any] = filter
 
     if filter_lang == FilterLang.CQL2_JSON:
         cql2_filter = json.loads(filter)
@@ -91,7 +91,7 @@ def _parse_filter(filter: str, filter_lang: FilterLang) -> str | Mapping[str, Ma
 
 
 @click.group()
-def main():
+def main() -> None:
     pass
 
 
@@ -144,7 +144,7 @@ def main():
     default=30,
     help="Connection timeout, in seconds",
 )
-def search(
+def search(  # noqa: PLR0913, PLR0917 -- Click supplies one argument per CLI option.
     url: str,
     filter: str,
     filter_lang: FilterLang,
@@ -152,12 +152,10 @@ def search(
     output_dir: Path,
     verbose: bool,
     timeout: int,
-):
+) -> None:
     logger.warning(f"DRY RUN: {dry_run}")
 
-    cql2_filter: str | Mapping[str, Mapping] = _parse_filter(
-        filter=filter, filter_lang=filter_lang
-    )
+    cql2_filter: str | Mapping[str, Any] = _parse_filter(filter=filter, filter_lang=filter_lang)
 
     if dry_run:
         dry_run_aeronet_search(url=url, cql2_filter=cql2_filter)
@@ -203,16 +201,14 @@ def search(
     default=30,
     help="Connection timeout, in seconds",
 )
-def dump_stations(url: str, output_file: Path, verbose: bool, timeout: int):
+def dump_stations(url: str, output_file: Path, verbose: bool, timeout: int) -> None:
     items: list[Item] = get_aeronet_stations(url=url, verbose=verbose, timeout=timeout)
 
     dump_items(items=items, output_file=output_file)
 
 
 @main.command(context_settings={"show_default": True})
-@click.argument(
-    "file_path", type=click.STRING, required=True, default=DEFAULT_STATIONS_PARQUET_URL
-)
+@click.argument("file_path", type=click.STRING, required=True, default=DEFAULT_STATIONS_PARQUET_URL)
 @click.option(
     "--filter",
     type=click.STRING,
@@ -234,14 +230,10 @@ def dump_stations(url: str, output_file: Path, verbose: bool, timeout: int):
 )
 def query_stations(
     file_path: str, filter: str, filter_lang: FilterLang, format: QueryOutputFormat
-):
-    cql2_filter: str | Mapping[str, Mapping] = _parse_filter(
-        filter=filter, filter_lang=filter_lang
-    )
+) -> None:
+    cql2_filter: str | Mapping[str, Any] = _parse_filter(filter=filter, filter_lang=filter_lang)
 
-    sql_query, items = query_stations_from_parquet(
-        file_path=file_path, cql2_filter=cql2_filter
-    )
+    sql_query, items = query_stations_from_parquet(file_path=file_path, cql2_filter=cql2_filter)
 
     logger.info(f"Filtered data with `{sql_query}` query on {file_path} parquet file:")
 
@@ -255,9 +247,7 @@ def query_stations(
             collection: ItemCollection = ItemCollection(items=items)
             json_dump(obj=collection.to_dict(), pretty_print=True)
 
-        case _:
-            logger.error(f"It's not you, it's us: output format {format} not supported")
-
 
 for command in [dump_stations, query_stations, search]:
-    command.callback = _track(command.callback)
+    if command.callback is not None:
+        command.callback = _track(command.callback)

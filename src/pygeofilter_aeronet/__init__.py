@@ -55,14 +55,14 @@ duckdb.load_extension("spatial")
 
 class FilterLang(Enum):
     @staticmethod
-    def _generate_next_value_(name, start, count, last_values):
+    def _generate_next_value_(name: str, start: int, count: int, last_values: list[Any]) -> str:
         return name.lower().replace("_", "-")
 
     CQL2_JSON = auto()
     CQL2_TEXT = auto()
 
 
-def dump_items(items: list[Item], output_file: Path):
+def dump_items(items: list[Item], output_file: Path) -> None:
     logger.info("Converting the STAC Items pyarrow Table...")
     record_batch_reader = parse_stac_items_to_arrow(items)
     table = record_batch_reader.read_all()
@@ -91,12 +91,8 @@ def get_aeronet_stations(
             latitude = row["Latitude(decimal_degrees)"]
             longitude = row["Longitude(decimal_degrees)"]
             altitude = row["Altitude(Meters)"]
-            start_datetime = datetime.strptime(
-                str(row["Data_Start_date(dd-mm-yyyy)"]), "%d-%m-%Y"
-            )
-            end_datetime = datetime.strptime(
-                str(row["Data_End_Date(dd-mm-yyyy)"]), "%d-%m-%Y"
-            )
+            start_datetime = datetime.strptime(str(row["Data_Start_date(dd-mm-yyyy)"]), "%d-%m-%Y")
+            end_datetime = datetime.strptime(str(row["Data_End_Date(dd-mm-yyyy)"]), "%d-%m-%Y")
 
             current_item: Item = Item(
                 id=row["New_Site_ID"],
@@ -115,9 +111,7 @@ def get_aeronet_stations(
                 properties={"title": row["Name"]},
             )
 
-            aext: AeronetExtension = AeronetExtension.from_item(
-                current_item, add_if_missing=True
-            )
+            aext: AeronetExtension = AeronetExtension.from_item(current_item, add_if_missing=True)
             aext.apply(
                 site_name=str(row["Name"]),
                 land_use_type=str(row["Land_Use_type"]),
@@ -137,24 +131,18 @@ def get_aeronet_stations(
 def query_stations_from_parquet(
     file_path: str, cql2_filter: str | Mapping[str, Any] | None = None
 ) -> tuple[str, list[Item]]:
-    sql_query = (
-        "SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) AS geometry "
-        "FROM read_parquet(?)"
-    )
+    sql_query = "SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) AS geometry FROM read_parquet(?)"
 
     if cql2_filter:
         sql_where = to_sql_where(
-            root=json_parse(cql2_filter),  # type: ignore
-            field_mapping=IdempotentDict(),  # type: ignore
+            root=json_parse(cql2_filter),
+            field_mapping=IdempotentDict(),
         )
         sql_query += f" WHERE {sql_where}"
 
     results_table = duckdb.execute(sql_query, [file_path]).fetch_arrow_table()
 
-    items: list[Item] = []
-
-    for item in stac_table_to_items(results_table):
-        items.append(Item.from_dict(item))
+    items = [Item.from_dict(item) for item in stac_table_to_items(results_table)]
 
     return (sql_query, items)
 
@@ -173,12 +161,8 @@ def _read_aeronet_site_list() -> list[str]:
     Kolfield,-74.476387,39.802223,50.000000
     """
 
-    site_list: list[str] = []
-
     _, items = query_stations_from_parquet(DEFAULT_STATIONS_PARQUET_URL)
-    for item in items:
-        site_list.append(item.properties["aeronet:site_name"])
-    return site_list
+    return [item.properties["aeronet:site_name"] for item in items]
 
 
 SUPPORTED_VALUES["site"] = _read_aeronet_site_list()
@@ -186,7 +170,7 @@ SUPPORTED_VALUES["site"] = _read_aeronet_site_list()
 
 def dry_run_aeronet_search(
     cql2_filter: str | Mapping[str, Any], url: str = AERONET_API_BASE_URL
-):
+) -> None:
     filter, _ = to_aeronet_api(cql2_filter)
     logger.info(f"You can browse data on: {url}/cgi-bin/print_web_data_v3?{filter}")
 
@@ -246,9 +230,7 @@ def aeronet_search(
                 data[date_col] + " " + data[time_col], format="%d:%m:%Y %H:%M:%S"
             )
         else:
-            gdf["datetime"] = to_datetime(
-                data[date_col] + " 00:00:00", format="%d:%m:%Y %H:%M:%S"
-            )
+            gdf["datetime"] = to_datetime(data[date_col] + " 00:00:00", format="%d:%m:%Y %H:%M:%S")
 
     gdf = gdf.drop_duplicates()
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
@@ -265,9 +247,7 @@ def aeronet_search(
 
         columns: list[Column] = []
         for col_name, dtype in data.dtypes.items():
-            columns.append(
-                Column(properties={"name": col_name, "col_type": str(dtype)})
-            )
+            columns.append(Column(properties={"name": col_name, "col_type": str(dtype)}))
         ext.columns = columns
 
         return asset

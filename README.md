@@ -2,8 +2,10 @@
 # pygeofilter-aeronet
 
 [![Documentation](https://img.shields.io/badge/docs-online-blue.svg)](https://terradue.github.io/pygeofilter-aeronet/)
-[![PyPI - Version](https://img.shields.io/pypi/v/transpiler-mate.svg)](https://pypi.org/project/transpiler-mate)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/transpiler-mate.svg)](https://pypi.org/project/transpiler-mate)
+[![PyPI - Version](https://img.shields.io/pypi/v/pygeofilter-aeronet.svg)](https://pypi.org/project/pygeofilter-aeronet)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pygeofilter-aeronet.svg)](https://pypi.org/project/pygeofilter-aeronet)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/terradue/pygeofilter-aeronet/package.yaml?branch=develop&event=push&label=build&logo=githubactions)](https://github.com/terradue/pygeofilter-aeronet/actions/workflows/package.yaml?query=branch%3Adevelop)
+[![Code coverage](https://img.shields.io/codecov/c/github/terradue/pygeofilter-aeronet/develop?logo=codecov)](https://app.codecov.io/gh/terradue/pygeofilter-aeronet/tree/develop)
 
 **pygeofilter-aeronet** provides a [pygeofilter](https://github.com/geopython/pygeofilter) extension for querying NASA’s [AERONET](https://aeronet.gsfc.nasa.gov/) aerosol optical depth datasets through the [AERONET Web Service v3 API](https://aeronet.gsfc.nasa.gov/print_web_data_help_v3.html).
 

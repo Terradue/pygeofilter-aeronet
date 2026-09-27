@@ -67,10 +67,7 @@ class AeronetExtension(
     @classmethod
     def has_extension(cls, obj: pystac.Item) -> bool:
         # Simple "exact membership" check instead of the VERSION_REGEX logic
-        return (
-            obj.stac_extensions is not None
-            and cls.get_schema_uri() in obj.stac_extensions
-        )
+        return obj.stac_extensions is not None and cls.get_schema_uri() in obj.stac_extensions
 
     # ---- Main helper to attach to an Item ----
     @classmethod
