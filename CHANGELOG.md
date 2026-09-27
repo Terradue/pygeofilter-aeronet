@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.13.0] - 2026-09-28
 
 ### Added
 
@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modernized type annotations and imports across the package.
 - Updated the package workflow to test supported Python versions before publishing.
 - Updated the project documentation URL and README badges.
+- Documentation update according to the Diataxis convention.
 
 ### Fixed
 
@@ -76,6 +77,7 @@ initial development through April 2026.
 - Fixed station querying, generated-client signatures and types, package module
   naming, documentation builds, and station-update automation.
 
-[Unreleased]: https://github.com/Terradue/pygeofilter-aeronet/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/Terradue/pygeofilter-aeronet/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/Terradue/pygeofilter-aeronet/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/Terradue/pygeofilter-aeronet/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Terradue/pygeofilter-aeronet/releases/tag/v0.11.0
