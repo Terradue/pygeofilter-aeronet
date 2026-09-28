@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Fabrice Brito, Simone Tripodi" /><link rel="canonical" href="https://terradue.github.io/pygeofilter-aeronet/cli/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>CLI - pygeofilter AERONET API support for CQL2</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../styles/css/app.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "CLI";
+        var mkdocs_page_input_path = "cli.md";
+        var mkdocs_page_url = "/pygeofilter-aeronet/cli/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../imgs/icon-eoap.png" class="logo" alt="Logo"/>
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tutorials/first-query/">Your first query</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../tutorials/filter-translation/">Translate a filter into API parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../samples/level_10/">Level 1.0 data from the "Cart_Site" for AOD daily averages</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">How-to guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../how-to/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how-to/cli/">CLI workflows</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../samples/level_15/">Level 1.5 data from all sites with available data for all AOD points</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../samples/level_20_aod/">Level 2.0 data from the "Cart_Site" for AOD daily averages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../samples/level_20_sda/">Level 2.0 data from the "Cart_Site" for SDA daily averages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../samples/geo_search/">Geographical search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../use_cases/stations/">Stations Discovery</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../use_cases/matchup/">Match-Up</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../use_cases/stations_matchup/">Stations Discovery + Match-Up</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how-to/development/">Development and documentation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/">Overview</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">CLI</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#commands">Commands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#shared-search-and-station-query-options">Shared search and station-query options</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#search-options">Search options</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#dump-stations-options">Dump-stations options</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#query-stations-options">Query-stations options</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/filters/">Filters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/python/">Python API</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../aeronet_openapi.html">AERONET OpenAPI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Explanation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../explanation/">Query processing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design/">Software design</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">pygeofilter AERONET API support for CQL2</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Reference</li>
+      <li class="breadcrumb-item active">CLI</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Terradue/pygeofilter-aeronet/edit/master/docs/cli.md">Edit on Terradue/pygeofilter-aeronet</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="command-line-reference">Command-line reference</h1>
+<p>The installed entry point is <code>aeronet-client</code>. Run <code>aeronet-client COMMAND --help</code> for command help. For procedures, see <a href="../how-to/cli/">CLI workflows</a>.</p>
+<h2 id="commands">Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>search [OPTIONS] [URL]</code></td>
+<td>Download observations and print a STAC Item</td>
+</tr>
+<tr>
+<td><code>dump-stations [OPTIONS] [URL]</code></td>
+<td>Download stations into GeoParquet</td>
+</tr>
+<tr>
+<td><code>query-stations [OPTIONS] [FILE_PATH]</code></td>
+<td>Filter a station catalogue</td>
+</tr>
+</tbody>
+</table>
+<p><code>URL</code> defaults to <code>https://aeronet.gsfc.nasa.gov</code> and can also be supplied through <code>AERONET_API_BASE_URL</code>. An explicit argument takes precedence. <code>FILE_PATH</code> accepts a local path or URL and defaults to the repository's hosted <code>stations-update/stations.parquet</code> catalogue.</p>
+<h2 id="shared-search-and-station-query-options">Shared search and station-query options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--filter TEXT</code></td>
+<td>Required</td>
+<td>CQL2 filter</td>
+</tr>
+<tr>
+<td><code>--filter-lang [cql2-json|cql2-text]</code></td>
+<td><code>cql2-json</code></td>
+<td>Advertised input language selector</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td></td>
+<td>Show help and exit</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>cql2-json</code>: both current backends parse CQL2 JSON. Although the CLI advertises <code>cql2-text</code>, it does not currently select a text parser.</p>
+<h2 id="search-options">Search options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dry-run</code></td>
+<td>Off</td>
+<td>Log the observation URL without downloading observations</td>
+</tr>
+<tr>
+<td><code>--output-dir DIRECTORY</code></td>
+<td>Current directory</td>
+<td>Directory for CSV and GeoParquet assets</td>
+</tr>
+<tr>
+<td><code>--verbose</code></td>
+<td>Off</td>
+<td>Trace HTTP traffic</td>
+</tr>
+<tr>
+<td><code>--timeout INTEGER</code></td>
+<td><code>30</code></td>
+<td>HTTP timeout in seconds</td>
+</tr>
+</tbody>
+</table>
+<p>A normal search prints a STAC Item as JSON on stdout. Dry-run output is logged on stderr. Use <code>format=csv</code> in the filter because downloaded data is parsed as CSV.</p>
+<h2 id="dump-stations-options">Dump-stations options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--output-file FILE</code></td>
+<td>Required</td>
+<td>Destination GeoParquet file</td>
+</tr>
+<tr>
+<td><code>--verbose</code></td>
+<td>Off</td>
+<td>Trace HTTP traffic</td>
+</tr>
+<tr>
+<td><code>--timeout INTEGER</code></td>
+<td><code>30</code></td>
+<td>HTTP timeout in seconds</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td></td>
+<td>Show help and exit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="query-stations-options">Query-stations options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--format [jsonl|stac]</code></td>
+<td><code>jsonl</code></td>
+<td>One Item per line or a STAC ItemCollection</td>
+</tr>
+</tbody>
+</table>
+<p>Diagnostics are logged on stderr. The current command wrapper logs caught exceptions as <code>FAIL</code> without re-raising them, so an exit status of zero alone does not establish that a download succeeded.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../reference/" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../reference/filters/" class="btn btn-neutral float-right" title="Filters">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p><a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a></p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Terradue/pygeofilter-aeronet" class="fa fa-code-fork" style="color: #fcfcfc"> Terradue/pygeofilter-aeronet</a>
+        </span>
+    
+    
+      <span><a href="../reference/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../reference/filters/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/config.js"></script>
+      <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

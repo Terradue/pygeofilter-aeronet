@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Fabrice Brito, Simone Tripodi" /><link rel="canonical" href="https://terradue.github.io/pygeofilter-aeronet/tutorials/first-query/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Your first query - pygeofilter AERONET API support for CQL2</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../styles/css/app.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Your first query";
+        var mkdocs_page_input_path = "tutorials/first-query.md";
+        var mkdocs_page_url = "/pygeofilter-aeronet/tutorials/first-query/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../imgs/icon-eoap.png" class="logo" alt="Logo"/>
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Your first query</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#install-the-client">Install the client</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#build-a-filter">Build a filter</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#download-observations">Download observations</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../filter-translation/">Translate a filter into API parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../samples/level_10/">Level 1.0 data from the "Cart_Site" for AOD daily averages</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">How-to guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/cli/">CLI workflows</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../samples/level_15/">Level 1.5 data from all sites with available data for all AOD points</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../samples/level_20_aod/">Level 2.0 data from the "Cart_Site" for AOD daily averages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../samples/level_20_sda/">Level 2.0 data from the "Cart_Site" for SDA daily averages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../samples/geo_search/">Geographical search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../use_cases/stations/">Stations Discovery</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../use_cases/matchup/">Match-Up</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../use_cases/stations_matchup/">Stations Discovery + Match-Up</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/development/">Development and documentation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cli/">CLI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/filters/">Filters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/python/">Python API</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../aeronet_openapi.html">AERONET OpenAPI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Explanation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/">Query processing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../design/">Software design</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">pygeofilter AERONET API support for CQL2</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tutorials</li>
+      <li class="breadcrumb-item active">Your first query</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Terradue/pygeofilter-aeronet/edit/master/docs/tutorials/first-query.md">Edit on Terradue/pygeofilter-aeronet</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="your-first-aeronet-query">Your first AERONET query</h1>
+<p>In this tutorial you will retrieve daily AOD observations for Cart_Site from 1–14 June 2000 and open the resulting GeoParquet file.</p>
+<h2 id="install-the-client">Install the client</h2>
+<p>Use Python 3.10–3.13 and an internet connection. Create an environment and install the package:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-0-1">python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+</span><span id="__span-0-2"><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</span><span id="__span-0-3">python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pygeofilter-aeronet
+</span></code></pre></div>
+<p>On Windows, activate with <code>.venv\Scripts\activate</code> instead.</p>
+<h2 id="build-a-filter">Build a filter</h2>
+<p>Save the following as <code>first_query.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-1-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-1-2"><span class="kn">from</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_parquet</span>
+</span><span id="__span-1-3"><span class="kn">from</span><span class="w"> </span><span class="nn">pygeofilter_aeronet</span><span class="w"> </span><span class="kn">import</span> <span class="n">aeronet_search</span><span class="p">,</span> <span class="n">dry_run_aeronet_search</span>
+</span><span id="__span-1-4">
+</span><span id="__span-1-5"><span class="n">cql2_filter</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-1-6">    <span class="s2">"op"</span><span class="p">:</span> <span class="s2">"and"</span><span class="p">,</span>
+</span><span id="__span-1-7">    <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-1-8">        <span class="p">{</span><span class="s2">"op"</span><span class="p">:</span> <span class="s2">"eq"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"property"</span><span class="p">:</span> <span class="s2">"site"</span><span class="p">},</span> <span class="s2">"Cart_Site"</span><span class="p">]},</span>
+</span><span id="__span-1-9">        <span class="p">{</span><span class="s2">"op"</span><span class="p">:</span> <span class="s2">"eq"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"property"</span><span class="p">:</span> <span class="s2">"data_type"</span><span class="p">},</span> <span class="s2">"AOD10"</span><span class="p">]},</span>
+</span><span id="__span-1-10">        <span class="p">{</span><span class="s2">"op"</span><span class="p">:</span> <span class="s2">"eq"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"property"</span><span class="p">:</span> <span class="s2">"format"</span><span class="p">},</span> <span class="s2">"csv"</span><span class="p">]},</span>
+</span><span id="__span-1-11">        <span class="p">{</span><span class="s2">"op"</span><span class="p">:</span> <span class="s2">"eq"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"property"</span><span class="p">:</span> <span class="s2">"data_format"</span><span class="p">},</span> <span class="s2">"daily-average"</span><span class="p">]},</span>
+</span><span id="__span-1-12">        <span class="p">{</span><span class="s2">"op"</span><span class="p">:</span> <span class="s2">"t_after"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-1-13">            <span class="p">{</span><span class="s2">"property"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">},</span> <span class="p">{</span><span class="s2">"timestamp"</span><span class="p">:</span> <span class="s2">"2000-06-01T00:00:00Z"</span><span class="p">}</span>
+</span><span id="__span-1-14">        <span class="p">]},</span>
+</span><span id="__span-1-15">        <span class="p">{</span><span class="s2">"op"</span><span class="p">:</span> <span class="s2">"t_before"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-1-16">            <span class="p">{</span><span class="s2">"property"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">},</span> <span class="p">{</span><span class="s2">"timestamp"</span><span class="p">:</span> <span class="s2">"2000-06-14T23:59:59Z"</span><span class="p">}</span>
+</span><span id="__span-1-17">        <span class="p">]},</span>
+</span><span id="__span-1-18">    <span class="p">],</span>
+</span><span id="__span-1-19"><span class="p">}</span>
+</span><span id="__span-1-20">
+</span><span id="__span-1-21"><span class="n">dry_run_aeronet_search</span><span class="p">(</span><span class="n">cql2_filter</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Run <code>python first_query.py</code>. The log shows a URL containing <code>site=Cart_Site</code>, <code>AOD10=1</code>, and <code>AVG=20</code>, followed by the date parameters. This previews the observation request. Importing the package still accesses the remote station catalogue and initializes DuckDB's spatial extension.</p>
+<h2 id="download-observations">Download observations</h2>
+<p>Append this code to the same file and run it again:</p>
+<div class="highlight"><pre><span></span><code><span id="__span-2-1"><span class="n">item</span> <span class="o">=</span> <span class="n">aeronet_search</span><span class="p">(</span><span class="n">cql2_filter</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"results"</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</span><span id="__span-2-2"><span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">assets</span><span class="p">[</span><span class="s2">"csv"</span><span class="p">]</span><span class="o">.</span><span class="n">href</span><span class="p">)</span>
+</span><span id="__span-2-3"><span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">assets</span><span class="p">[</span><span class="s2">"geoparquet"</span><span class="p">]</span><span class="o">.</span><span class="n">href</span><span class="p">)</span>
+</span><span id="__span-2-4">
+</span><span id="__span-2-5"><span class="n">observations</span> <span class="o">=</span> <span class="n">read_parquet</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">assets</span><span class="p">[</span><span class="s2">"geoparquet"</span><span class="p">]</span><span class="o">.</span><span class="n">href</span><span class="p">)</span>
+</span><span id="__span-2-6"><span class="nb">print</span><span class="p">(</span><span class="n">observations</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</span></code></pre></div>
+<p>The <code>results</code> directory now contains a CSV file and a GeoParquet file with the same generated identifier. The printed table includes AERONET measurement columns and point geometries. The returned STAC Item describes those files; its JSON is not automatically saved.</p>
+<p>You have built a filter, previewed its request, and loaded the downloaded observations. Continue with <a href="../../how-to/cli/">CLI workflows</a> or look up <a href="../../reference/filters/">supported filters</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../filter-translation/" class="btn btn-neutral float-right" title="Translate a filter into API parameters">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p><a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a></p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Terradue/pygeofilter-aeronet" class="fa fa-code-fork" style="color: #fcfcfc"> Terradue/pygeofilter-aeronet</a>
+        </span>
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../filter-translation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/config.js"></script>
+      <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
