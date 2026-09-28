@@ -12,24 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-from functools import wraps
-from http import HTTPStatus
-from httpx import Client, Headers, Request, RequestNotRead, Response
-from loguru import logger
-from typing import Any, Mapping
+from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime
+from functools import wraps
+from http import HTTPStatus
+from typing import TYPE_CHECKING, Any, ParamSpec
+
+from httpx import Client, Headers, Request, RequestNotRead, Response
+from loguru import logger
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
 
-def _support_datetime_serialization(obj):
+P = ParamSpec("P")
+
+
+def _support_datetime_serialization(obj: object) -> object:
     if isinstance(obj, datetime):
         return obj.isoformat()
     return obj
 
 
-def json_dump(obj: Any, pretty_print: bool = False):
+def json_dump(obj: Any, pretty_print: bool = False) -> None:
     json.dump(
         obj,
         sys.stdout,
@@ -38,7 +46,7 @@ def json_dump(obj: Any, pretty_print: bool = False):
     )
 
 
-def _decode(value):
+def _decode(value: str | bytes | None) -> str:
     if not value:
         return ""
 
@@ -48,9 +56,9 @@ def _decode(value):
     return value.decode("utf-8")
 
 
-def _log_request(func):
+def _log_request(func: Callable[P, Request]) -> Callable[P, Request]:
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Request:
         request: Request = func(*args, **kwargs)
 
         logger.warning(f"{request.method} {request.url}")
@@ -71,9 +79,9 @@ def _log_request(func):
     return wrapper
 
 
-def _log_response(func):
+def _log_response(func: Callable[P, Response]) -> Callable[P, Response]:
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Response:
         response: Response = func(*args, **kwargs)
 
         if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
@@ -95,13 +103,13 @@ def _log_response(func):
 
         if HTTPStatus.MULTIPLE_CHOICES._value_ <= response.status_code:
             raise RuntimeError(
-                f"A server error occurred when invoking {kwargs['method'].upper()} {kwargs['url']}, read the logs for details"
+                f"A server error occurred when invoking {response.request.method.upper()} {response.request.url}, read the logs for details"
             )
         return response
 
     return wrapper
 
 
-def verbose_client(http_client: Client):
-    http_client.build_request = _log_request(http_client.build_request)  # type: ignore
-    http_client.request = _log_response(http_client.request)  # type: ignore
+def verbose_client(http_client: Client) -> None:
+    http_client.build_request = _log_request(http_client.build_request)  # type: ignore[method-assign]
+    http_client.request = _log_response(http_client.request)  # type: ignore[method-assign]

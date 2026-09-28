@@ -2,7 +2,10 @@
 # pygeofilter-aeronet
 
 [![Documentation](https://img.shields.io/badge/docs-online-blue.svg)](https://terradue.github.io/pygeofilter-aeronet/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![PyPI - Version](https://img.shields.io/pypi/v/pygeofilter-aeronet.svg)](https://pypi.org/project/pygeofilter-aeronet)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pygeofilter-aeronet.svg)](https://pypi.org/project/pygeofilter-aeronet)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/terradue/pygeofilter-aeronet/package.yaml?branch=develop&event=push&label=build&logo=githubactions)](https://github.com/terradue/pygeofilter-aeronet/actions/workflows/package.yaml?query=branch%3Adevelop)
+[![Code coverage](https://img.shields.io/codecov/c/github/terradue/pygeofilter-aeronet/develop?logo=codecov)](https://app.codecov.io/gh/terradue/pygeofilter-aeronet/tree/develop)
 
 **pygeofilter-aeronet** provides a [pygeofilter](https://github.com/geopython/pygeofilter) extension for querying NASA’s [AERONET](https://aeronet.gsfc.nasa.gov/) aerosol optical depth datasets through the [AERONET Web Service v3 API](https://aeronet.gsfc.nasa.gov/print_web_data_help_v3.html).
 
@@ -31,62 +34,21 @@ or directly from GitHub:
 pip install git+https://github.com/Terradue/pygeofilter-aeronet.git
 ```
 
-## Quick example
-
-```python
-import pandas as pd
-from io import StringIO
-from pygeofilter_aeronet.evaluator import (
-    to_aeronet_api_querystring,
-    http_invoke
-)
-
-cql2_filter = {
-            "op": "and",
-            "args": [
-                {"op": "eq", "args": [{"property": "site"}, "Cart_Site"]},
-                {"op": "eq", "args": [{"property": "data_type"}, "AOD10"]},
-                {"op": "eq", "args": [{"property": "format"}, "csv"]},
-                {"op": "eq", "args": [{"property": "data_format"}, "daily-average"]},
-                {
-                    "op": "t_after",
-                    "args": [
-                        {"property": "time"},
-                        {"timestamp": "2023-02-01T00:00:00Z"},
-                    ],
-                },
-                {
-                    "op": "t_before",
-                    "args": [
-                        {"property": "time"},
-                        {"timestamp": "2023-02-28T23:59:59Z"},
-                    ],
-                },
-            ],
-        }
-
-# print the AERONET API querystring:
-print(to_aeronet_api(cql2_filter=cql2_filter))
-
-# dry-run the HTTP request:
-http_invoke(cql2_filter=cql2_filter, dry_run=True)
-
-# query the AERONET API
-raw_data = http_invoke(cql2_filter=cql2_filter, dry_run=False)
-df = pd.read_csv(StringIO(raw_data), skiprows=5)
-
-print(df.head(5))
-```
-
 ## Documentation
 
-User guide and examples available at: [https://terradue.github.io/pygeofilter-aeronet/](https://terradue.github.io/pygeofilter-aeronet/)
+The [documentation site](https://terradue.github.io/pygeofilter-aeronet/) is organized by purpose:
+
+- [Tutorials](docs/tutorials/index.md): complete your first query.
+- [How-to guides](docs/how-to/index.md): download data, discover stations, and match satellite acquisitions.
+- [Reference](docs/reference/index.md): CLI options, supported filters, and Python functions.
+- [Explanation](docs/explanation/index.md): query processing and software design.
+
+Start with [Your first AERONET query](docs/tutorials/first-query.md) for an executable Python example.
 
 ## Development
 
-```console
-git clone https://github.com/Terradue/pygeofilter-aeronet.git
-cd pygeofilter-aeronet
-hatch shell
-```
+See [development setup and documentation preview](docs/how-to/development.md).
 
+## License
+
+[![Apache License, Version 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)

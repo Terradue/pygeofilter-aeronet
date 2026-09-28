@@ -20,7 +20,7 @@ repo_name: Terradue/pygeofilter-aeronet
 
 theme:
     logo: imgs/icon-eoap.png
-    name: material
+    name: readthedocs
 
     palette:
     - media: "(prefers-color-scheme: light)"
@@ -39,7 +39,7 @@ plugins:
   - mermaid2:
       version: 11.4.1
   - mkdocs-jupyter:
-      execute: true
+      execute: false
       show_input: True
       no_input: False
   - build_plantuml:
@@ -87,21 +87,31 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
-  - ./index.ipynb
-  - Samples:
-    - ./samples/level_10.ipynb
-    - ./samples/level_15.ipynb
-    - ./samples/level_20_aod.ipynb
-    - ./samples/level_20_sda.ipynb
-    - ./samples/geo_search.ipynb
-  - Use Cases:
-    - ./use_cases/stations.ipynb
-    - ./use_cases/matchup.ipynb
-    - ./use_cases/stations_matchup.ipynb
-  - ./cli.md
-  - Design:
-    - AERONET OpenAPI: ./aeronet_openapi.html
-    - ./design.md
-  - API doc: ./api/latest/pygeofilter_aeronet
-  
+  - Home: index.md
+  - Tutorials:
+    - Overview: tutorials/index.md
+    - Your first query: tutorials/first-query.md
+    - Translate a filter: tutorials/filter-translation.ipynb
+    - Retrieve and map Level 1.0 AOD: samples/level_10.ipynb
+  - How-to guides:
+    - Overview: how-to/index.md
+    - CLI workflows: how-to/cli.md
+    - Level 1.5 AOD: samples/level_15.ipynb
+    - Level 2.0 AOD: samples/level_20_aod.ipynb
+    - Level 2.0 SDA: samples/level_20_sda.ipynb
+    - Geographic search: samples/geo_search.ipynb
+    - Discover stations: use_cases/stations.ipynb
+    - Satellite matchup: use_cases/matchup.ipynb
+    - Station-first matchup: use_cases/stations_matchup.ipynb
+    - Development and documentation: how-to/development.md
+  - Reference:
+    - Overview: reference/index.md
+    - CLI: cli.md
+    - Filters: reference/filters.md
+    - Python API: reference/python.md
+    - AERONET OpenAPI: aeronet_openapi.html
+  - Explanation:
+    - Query processing: explanation/index.md
+    - Software design: design.md
+
 copyright: <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a>

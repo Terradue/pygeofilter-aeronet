@@ -20,6 +20,10 @@ includes:
 
 tasks:
 
+  default:
+    cmds:
+      - task: quality:pre-commit:run
+
   serve-docs:
     cmds:
     - |

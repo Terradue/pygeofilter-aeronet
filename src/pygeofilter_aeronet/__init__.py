@@ -12,37 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .aeronet_client import Client as AeronetClient
-from .aeronet_client.api.default.search import sync as aeronet_client_search
-from .aeronet_client.api.default.get_stations import sync as get_stations
-from .aeronet_stac_extension import AeronetExtension
-from .evaluator import to_aeronet_api, SUPPORTED_VALUES
-from .utils import verbose_client
+import uuid
+from collections.abc import Mapping
 from datetime import datetime
 from enum import Enum, auto
-from geopandas import GeoDataFrame, GeoSeries
-from httpx import Timeout
 from io import StringIO
-from loguru import logger
-from pandas import DataFrame, to_datetime, read_csv
 from pathlib import Path
-from pystac import Asset, Item, Link
-from pystac.extensions.table import TableExtension, Column
-from pygeofilter_duckdb import to_sql_where
+from typing import Any
+
+import duckdb
+import geopandas
+from geopandas import GeoDataFrame
+from httpx import Timeout
+from loguru import logger
+from pandas import DataFrame, read_csv, to_datetime
 from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
-from shapely.geometry import Point, MultiPoint, mapping
+from pygeofilter_duckdb import to_sql_where
+from pystac import Asset, Item, Link
+from pystac.extensions.table import Column, TableExtension
+from shapely.geometry import MultiPoint, Point, mapping
 from stac_geoparquet.arrow import (
     parse_stac_items_to_arrow,
     stac_table_to_items,
     to_parquet,
 )
-from typing import Any, List, Mapping, Optional, Tuple
 
-import duckdb
-import geopandas
-import uuid
-
+from .aeronet_client import Client as AeronetClient
+from .aeronet_client.api.default.get_stations import sync as get_stations
+from .aeronet_client.api.default.search import sync as aeronet_client_search
+from .aeronet_stac_extension import AeronetExtension
+from .evaluator import SUPPORTED_VALUES, to_aeronet_api
+from .utils import verbose_client
 
 AERONET_API_BASE_URL = "https://aeronet.gsfc.nasa.gov"
 DEFAULT_STATIONS_PARQUET_URL = "https://github.com/Terradue/pygeofilter-aeronet/raw/refs/heads/stations-update/stations.parquet"
@@ -54,14 +55,14 @@ duckdb.load_extension("spatial")
 
 class FilterLang(Enum):
     @staticmethod
-    def _generate_next_value_(name, start, count, last_values):
+    def _generate_next_value_(name: str, start: int, count: int, last_values: list[Any]) -> str:
         return name.lower().replace("_", "-")
 
     CQL2_JSON = auto()
     CQL2_TEXT = auto()
 
 
-def dump_items(items: List[Item], output_file: Path):
+def dump_items(items: list[Item], output_file: Path) -> None:
     logger.info("Converting the STAC Items pyarrow Table...")
     record_batch_reader = parse_stac_items_to_arrow(items)
     table = record_batch_reader.read_all()
@@ -75,7 +76,7 @@ def dump_items(items: List[Item], output_file: Path):
 
 def get_aeronet_stations(
     url: str = AERONET_API_BASE_URL, verbose: bool = False, timeout: int | None = None
-) -> List[Item]:
+) -> list[Item]:
     with AeronetClient(base_url=url, timeout=Timeout(timeout)) as aeronet_client:
         if verbose:
             verbose_client(aeronet_client.get_httpx_client())
@@ -84,18 +85,14 @@ def get_aeronet_stations(
 
         logger.info("Converting CSV data to STAC Items:")
 
-        items: List[Item] = []
+        items: list[Item] = []
 
         for _, row in data_frame.iterrows():
-
-            def _to_date(column: str):
-                return datetime.strptime(str(row[column]), "%d-%m-%Y")
-
             latitude = row["Latitude(decimal_degrees)"]
             longitude = row["Longitude(decimal_degrees)"]
             altitude = row["Altitude(Meters)"]
-            start_datetime = _to_date("Data_Start_date(dd-mm-yyyy)")
-            end_datetime = _to_date("Data_End_Date(dd-mm-yyyy)")
+            start_datetime = datetime.strptime(str(row["Data_Start_date(dd-mm-yyyy)"]), "%d-%m-%Y")
+            end_datetime = datetime.strptime(str(row["Data_End_Date(dd-mm-yyyy)"]), "%d-%m-%Y")
 
             current_item: Item = Item(
                 id=row["New_Site_ID"],
@@ -114,9 +111,7 @@ def get_aeronet_stations(
                 properties={"title": row["Name"]},
             )
 
-            aext: AeronetExtension = AeronetExtension.from_item(
-                current_item, add_if_missing=True
-            )
+            aext: AeronetExtension = AeronetExtension.from_item(current_item, add_if_missing=True)
             aext.apply(
                 site_name=str(row["Name"]),
                 land_use_type=str(row["Land_Use_type"]),
@@ -135,30 +130,24 @@ def get_aeronet_stations(
 
 def query_stations_from_parquet(
     file_path: str, cql2_filter: str | Mapping[str, Any] | None = None
-) -> Tuple[str, List[Item]]:
-    sql_query = (
-        f"SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) as geometry FROM '{file_path}'"
-    )
+) -> tuple[str, list[Item]]:
+    sql_query = "SELECT * EXCLUDE(geometry), ST_AsWKB(geometry) AS geometry FROM read_parquet(?)"
 
     if cql2_filter:
         sql_where = to_sql_where(
-            root=json_parse(cql2_filter),  # type: ignore
-            field_mapping=IdempotentDict(),  # type: ignore
+            root=json_parse(cql2_filter),
+            field_mapping=IdempotentDict(),
         )
         sql_query += f" WHERE {sql_where}"
 
-    results_set = duckdb.query(sql_query)
-    results_table = results_set.fetch_arrow_table()
+    results_table = duckdb.execute(sql_query, [file_path]).fetch_arrow_table()
 
-    items: List[Item] = []
-
-    for item in stac_table_to_items(results_table):
-        items.append(Item.from_dict(item))
+    items = [Item.from_dict(item) for item in stac_table_to_items(results_table)]
 
     return (sql_query, items)
 
 
-def _read_aeronet_site_list() -> List[str]:
+def _read_aeronet_site_list() -> list[str]:
     """
     Example of AERONET site list file content:
 
@@ -172,12 +161,8 @@ def _read_aeronet_site_list() -> List[str]:
     Kolfield,-74.476387,39.802223,50.000000
     """
 
-    site_list: List[str] = []
-
     _, items = query_stations_from_parquet(DEFAULT_STATIONS_PARQUET_URL)
-    for item in items:
-        site_list.append(item.properties["aeronet:site_name"])
-    return site_list
+    return [item.properties["aeronet:site_name"] for item in items]
 
 
 SUPPORTED_VALUES["site"] = _read_aeronet_site_list()
@@ -185,7 +170,7 @@ SUPPORTED_VALUES["site"] = _read_aeronet_site_list()
 
 def dry_run_aeronet_search(
     cql2_filter: str | Mapping[str, Any], url: str = AERONET_API_BASE_URL
-):
+) -> None:
     filter, _ = to_aeronet_api(cql2_filter)
     logger.info(f"You can browse data on: {url}/cgi-bin/print_web_data_v3?{filter}")
 
@@ -231,14 +216,11 @@ def aeronet_search(
     )
     gdf.set_crs("EPSG:4326", inplace=True)
 
-    date_col = "Date(dd:mm:yyyy)"
-    time_col = "Time(hh:mm:ss)"
-
     # pick first matching date column
-    date_col: Optional[str] = next(
+    date_col: str | None = next(
         (c for c in ["Date(dd:mm:yyyy)", "Date_(dd:mm:yyyy)"] if c in gdf.columns), None
     )
-    time_col: Optional[str] = next(
+    time_col: str | None = next(
         (c for c in ["Time(hh:mm:ss)", "Time_(hh:mm:ss)"] if c in gdf.columns), None
     )
 
@@ -248,17 +230,14 @@ def aeronet_search(
                 data[date_col] + " " + data[time_col], format="%d:%m:%Y %H:%M:%S"
             )
         else:
-            gdf["datetime"] = to_datetime(
-                data[date_col] + " 00:00:00", format="%d:%m:%Y %H:%M:%S"
-            )
+            gdf["datetime"] = to_datetime(data[date_col] + " 00:00:00", format="%d:%m:%Y %H:%M:%S")
 
     gdf = gdf.drop_duplicates()
     gdf.to_parquet(parquet_output_file, engine="pyarrow", compression="gzip")
     logger.success(f"Data saved to GeoParquet file: {parquet_output_file.absolute()}")
 
-    unique_points: GeoSeries = gdf.geometry
-    unique_points.drop_duplicates()
-    multipoint = MultiPoint(points=unique_points)  # type: ignore TODO
+    unique_points = gdf.geometry.drop_duplicates()
+    multipoint = MultiPoint([point.coords[0] for point in unique_points])
 
     # build the response Item
 
@@ -266,11 +245,9 @@ def aeronet_search(
         ext = TableExtension.ext(asset, add_if_missing=False)
         ext.row_count = len(data)
 
-        columns: List[Column] = []
+        columns: list[Column] = []
         for col_name, dtype in data.dtypes.items():
-            columns.append(
-                Column(properties={"name": col_name, "col_type": str(dtype)})
-            )
+            columns.append(Column(properties={"name": col_name, "col_type": str(dtype)}))
         ext.columns = columns
 
         return asset

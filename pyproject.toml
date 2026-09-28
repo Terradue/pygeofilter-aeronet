@@ -1,15 +1,35 @@
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.32.4"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pygeofilter-aeronet"
 dynamic = ["version"]
-description = ''
+description = 'pygeofilter extension for querying NASA’s AERONET aerosol optical depth datasets'
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
-keywords = []
+license-files = ["LICENSE"]
+keywords = [
+  "pygeofilter",
+  "cql2-text",
+  "cql2-json",
+  "aeronet"
+]
 authors = [
   { name = "Fabrice Brito", email = "fabrice.brito@terradue.com" },
   { name = "Simone Tripodi", email = "simone.tripodi@terradue.com" },
@@ -31,53 +51,66 @@ classifiers = [
 ]
 
 dependencies = [
-  "pygeofilter==0.3.3",
+  "pygeofilter==0.4.0",
   "pygeofilter-duckdb==0.1.0",
   "shapely==2.1.2",
   "loguru==0.7.3",
-  "click==8.3.3",
+  "click==8.5.0",
   "pandas==2.3.3",
-  "geopandas==1.1.3",
-  "pyarrow==24.0.0",
-  "httpx>=0.23.0,<0.29.0",
+  "geopandas==1.1.4",
+  "pyarrow==25.0.1",
+  "httpx>=0.28.1,<0.29.0",
   "attrs==26.1.0",
   "python-dateutil==2.9.0.post0",
-  "pystac==1.14.3",
-  "stac-geoparquet==0.7.0"
+  "pystac>=1,<2",
+  "stac-geoparquet==0.8.2"
 ]
 
-[tool.hatch.metadata]
-allow-direct-references = true
+# ---------------------------------------------------------------------------
+# Project Refs
+# ---------------------------------------------------------------------------
 
 [project.urls]
-Documentation = "https://github.com/Terradue/pygeofilter-aeronet#readme"
+Documentation = "https://terradue.github.io/pygeofilter-aeronet/"
 Issues = "https://github.com/Terradue/pygeofilter-aeronet/issues"
 Source = "https://github.com/Terradue/pygeofilter-aeronet"
+Changelog = "https://github.com/Terradue/pygeofilter-aeronet/blob/main/CHANGELOG.md"
+
+# ---------------------------------------------------------------------------
+# Project Settings
+# ---------------------------------------------------------------------------
 
 [tool.hatch.envs.prod]
 path = "/app/envs/aeronet-client"
 
-[tool.hatch.envs.dev]
-extra-dependencies = [
-  "pytest==9.0.2",
-  "ruff==0.15.6",
-]
-[tool.hatch.envs.dev.scripts]
-lint = "ruff format src tests"
-check = "ruff check --fix src tests"
-
 [project.scripts]
 aeronet-client = "pygeofilter_aeronet.cli:main"
+
+# ---------------------------------------------------------------------------
+# Versioning and packaging
+# ---------------------------------------------------------------------------
 
 [tool.hatch.version]
 path = "src/pygeofilter_aeronet/__about__.py"
 
-[tool.hatch.envs.types]
-extra-dependencies = [
-  "mypy>=1.0.0",
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/LICENSE",
+  "/NOTICE",
+  "/pyproject.toml",
 ]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/pygeofilter_aeronet tests}"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pygeofilter_aeronet"]
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
 
 [tool.coverage.run]
 source_pkgs = ["pygeofilter_aeronet", "tests"]
@@ -88,45 +121,229 @@ omit = [
 ]
 
 [tool.coverage.paths]
-pygeofilter_aeronet = ["src/pygeofilter_aeronet", "*/pygeofilter-aeronet/src/pygeofilter_aeronet"]
-tests = ["tests", "*/pygeofilter-aeronet/tests"]
+pygeofilter_aeronet = [
+  "src/pygeofilter_aeronet",
+  "*/{{ project_slug }}/src/pygeofilter_aeronet"
+]
 
 [tool.coverage.report]
+show_missing = true
+skip_covered = false
+
 exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
+  "raise NotImplementedError",
 ]
 
-[tool.pytest.ini_options]
-python_files = [
-  "test_*.py",
-  "tests_*.py",
-]
-
-[tool.hatch.envs.default.scripts]
-test = "hatch run nose2"
+# ---------------------------------------------------------------------------
+# Hatch: test environment
+# ---------------------------------------------------------------------------
 
 [tool.hatch.envs.test]
-description = "Test environment"
 skip-install = false
-dependencies = ["pytest==9.0.2", "pytest-cov==7.0.0"]
+dependencies = [
+  "pytest>=9.1.1,<10",
+  "pytest-cov>=7.1.0,<8",
+]
 
 [tool.hatch.envs.test.scripts]
-test = "pytest"
-test-q = "pytest -q"
-test-cov = "pytest --cov=transpiler_mate"
-test-show-setup = "pytest --setup-show"
+test = "pytest {args:tests}"
+testv = "pytest --verbose {args:tests}"
+test-cov = "pytest --cov=pygeofilter_aeronet --cov-report=term-missing --cov-report=xml:coverage.xml {args:tests}"
+test-show-setup = "pytest --setup-show {args:tests}"
 
 [[tool.hatch.envs.test.matrix]]
-python = [
-  "3.10",
-  "3.11",
-  "3.12",
-  "3.13",
-# pygeofilter-duckdb 0.1.0 declares:
+# Match the supported versions in CI; pygeofilter-duckdb pins DuckDB below 1.2.
+python = ["3.10", "3.11", "3.12", "3.13"]
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py", "tests_*.py"]
+
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+]
+
+xfail_strict = true
+
+# ---------------------------------------------------------------------------
+# Hatch: development and quality environment
+# ---------------------------------------------------------------------------
+
+[tool.hatch.envs.dev]
+skip-install = false
+dependencies = [
+  "mypy>=2.3.1",
+  "ruff>=0.16.9",
+  "bandit>=1.9.4",
+  "pytest>=9.1.1,<10",
+]
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# Start with the essential rules
+select = [
+  # Core correctness
+  "F",      # Pyflakes
+  "E",      # pycodestyle errors
+  "W",      # pycodestyle warnings
+
+  # Imports and modernization
+  "I",      # isort
+  "UP",     # pyupgrade
+  "FA",     # future annotations
+  "TC",     # type-checking imports
+
+  # Bugs and correctness
+  "B",      # flake8-bugbear
+  "RET",    # flake8-return
+  "PTH",    # pathlib usage
+  "C4",     # comprehensions
+
+  # Simplification and readability
+  "SIM",    # flake8-simplify
+
+  # Complexity
+  "C90",    # McCabe complexity
+
+  # Pylint-derived checks
+  "PLE",    # Pylint errors
+  "PLW",    # Pylint warnings
+  "PLR",    # Pylint refactor/design checks
+
+  # Performance and Ruff-specific quality checks
+  "PERF",
+  "RUF",
+]
+
+ignore = [
+  # Formatter-controlled rules
+  "E501",   # line length
+  "W191",   # tab indentation
+  "E111",   # indentation
+  "E114",   # indentation
+  "E117",   # over-indented
+
+  # Too opinionated for a general project template.
+  # Enable per repository if useful.
+  # "PLR0904", # too many public methods
+]
+
+[tool.ruff.lint.per-file-ignores]
+# OpenAPI-generated signatures and HTTP status literals mirror the API schema.
+"src/pygeofilter_aeronet/aeronet_client/api/**/*.py" = ["PLR0913", "PLR2004"]
+
+[tool.ruff.lint.mccabe]
+# Flag errors (C901) whenever complexity exceeds 10 (default is 10)
+max-complexity = 7
+
+[tool.ruff.lint.pylint]
+# Keep these deliberately stricter than Pylint defaults.
+max-args = 6
+max-branches = 10
+max-returns = 6
+max-statements = 40
+
+# ---------------------------------------------------------------------------
+# Mypy
+# ---------------------------------------------------------------------------
+
+[tool.mypy]
+
+# Strict typing is the default for new Terradue Python projects.
+strict = true
+
+# Improve diagnostics.
+pretty = true
+show_error_codes = true
+show_error_context = true
+warn_unreachable = true
+
+# Avoid silently accepting untyped third-party APIs.
+ignore_missing_imports = false
+
+# Files checked by default.
+files = [
+  "src/pygeofilter_aeronet",
+  "tests"
+]
+
+# These upstream modules do not provide typing metadata in this installation.
+# Keep the gateway strict while excluding these dependency implementations.
+[[tool.mypy.overrides]]
+module = ["pygeofilter.*", "pygeofilter_duckdb.*"]
+ignore_missing_imports = true
+follow_imports = "skip"
+
+# The upstream evaluator base class and registration decorator are untyped.
+[[tool.mypy.overrides]]
+module = "pygeofilter_aeronet.evaluator"
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+
+[tool.hatch.envs.dev.scripts]
+# ---------------------------------------------------------------------------
+# Developer commands
 #
-# duckdb>=0.2.0
-# duckdb<1.2.0
-#  "3.14"
+# These commands are allowed to modify files.
+# ---------------------------------------------------------------------------
+
+format = "ruff format {args:src tests}"
+
+fix = [
+  "ruff check --fix {args:src tests}",
+  "ruff format {args:src tests}",
+]
+
+# ---------------------------------------------------------------------------
+# Verification commands
+#
+# These commands MUST NOT modify files and are suitable for CI.
+# ---------------------------------------------------------------------------
+
+format-check = "ruff format --check {args:src tests}"
+
+lint = "ruff check {args:src tests}"
+lint-check = "ruff check {args:src tests}"
+design-check = "ruff check --select C90,PLR {args:src tests}"
+
+typecheck = "mypy {args:src tests}"
+
+security = "bandit -r {args:src}"
+
+# Run the complete static quality gate.
+quality = [
+  "ruff format --check {args:src tests}",
+  "ruff check {args:src tests}",
+  "mypy {args:src tests}",
+  "bandit -r {args:src}",
+]
+
+# Complete local/CI validation including tests.
+check = [
+  "ruff format --check {args:src tests}",
+  "ruff check {args:src tests}",
+  "mypy {args:src tests}",
+  "bandit -r {args:src}",
+  "pytest {args:tests}",
+]
+
+# Preserve editable-install test extras and uv's local wheel resolution.
+[project.optional-dependencies]
+test = [
+  "pytest>=9.1.1,<10",
+  "pytest-cov>=7.1.0,<8"
 ]
