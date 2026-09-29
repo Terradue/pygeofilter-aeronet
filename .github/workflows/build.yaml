@@ -22,7 +22,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       with:
         python-version: 3.x
     - run: echo "APP_VERSION=$(awk -F'"' '/__version__/ {print $2}' src/pygeofilter_aeronet/__about__.py)" >> $GITHUB_ENV
