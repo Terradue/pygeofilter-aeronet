@@ -62,7 +62,7 @@ dependencies = [
   "httpx>=0.28.1,<0.29.0",
   "attrs==26.1.0",
   "python-dateutil==2.9.0.post0",
-  "pystac>=1,<2",
+  "pystac>=1.15.2,<2",
   "stac-geoparquet==0.8.2"
 ]
 
