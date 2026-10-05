@@ -30,6 +30,7 @@ from pygeofilter.parsers.cql2_json import parse as json_parse
 from pygeofilter.util import IdempotentDict
 from pygeofilter_duckdb import to_sql_where
 from pystac import Asset, Item, Link
+from pystac.extensions.aeronet import AeronetExtension
 from pystac.extensions.table import Column, TableExtension
 from shapely.geometry import MultiPoint, Point, mapping
 from stac_geoparquet.arrow import (
@@ -41,7 +42,6 @@ from stac_geoparquet.arrow import (
 from .aeronet_client import Client as AeronetClient
 from .aeronet_client.api.default.get_stations import sync as get_stations
 from .aeronet_client.api.default.search import sync as aeronet_client_search
-from .aeronet_stac_extension import AeronetExtension
 from .evaluator import SUPPORTED_VALUES, to_aeronet_api
 from .utils import verbose_client
 
