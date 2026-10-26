@@ -63,7 +63,7 @@ dependencies = [
   "attrs==26.1.0",
   "python-dateutil==2.9.0.post0",
   "pystac-ext-aeronet==1.0.0",
-  "stac-geoparquet==0.8.2"
+  "stac-geoparquet==0.8.3"
 ]
 
 # ---------------------------------------------------------------------------
