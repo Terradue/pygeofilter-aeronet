@@ -54,7 +54,7 @@ dependencies = [
   "pygeofilter==0.4.0",
   "pygeofilter-duckdb==0.1.0",
   "shapely==2.1.2",
-  "loguru==0.7.3",
+  "loguru==0.8.0",
   "click==8.5.0",
   "pandas==2.3.3",
   "geopandas==1.1.4",
